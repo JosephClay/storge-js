@@ -35,7 +35,7 @@ keys can also expire:
 ```js
 var store = require('storge-js');
 
-session.set('foo', 1, {
+store.set('foo', 1, {
   expiration: 60 * 1000 // ttl in ms
 });
 ```
