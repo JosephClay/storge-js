@@ -19,7 +19,6 @@
             return result;
         },
 
-
         _size = function(obj) {
             var count = 0,
                 key;
@@ -30,13 +29,14 @@
             return count;
         },
 
-        toString = Object.prototype.toString,
+        _protoToString = Object.prototype.toString,
+
         _isArray = Array.isArray || function(obj) {
-            return toString.call(obj) === '[object Array]';
+            return _protoToString.call(obj) === '[object Array]';
         },
 
         _isString = function(obj) {
-            return toString.call(obj) === '[object String]';
+            return _protoToString.call(obj) === '[object String]';
         },
 
         /**
