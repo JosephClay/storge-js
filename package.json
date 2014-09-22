@@ -2,7 +2,7 @@
   "name": "storge-js",
   "version": "0.0.2",
   "description": "local and session storage wrapper",
-  "main": "index.js",
+  "main": "storge.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
