@@ -18,6 +18,11 @@
             };
 
         }()),
+
+        _exists = function(obj) {
+            return obj !== null && obj !== undefined;
+        },
+
         _invert = function(obj) {
             var result = {},
                 key;
