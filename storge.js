@@ -305,11 +305,7 @@
                 expires = '0';
             }
 
-            document.cookie = _stringFormat('{name}={value}; expires={expiration}; path=/', {
-                name: this.name,
-                value: value,
-                expiration: expires
-            });
+            document.cookie = this.name + '=' + value + '; expires=' + expires + '; path=/';
         },
 
         /**
@@ -413,4 +409,4 @@
 
     return store;
 
-}(this, document));
+}(window, document));
