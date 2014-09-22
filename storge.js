@@ -10,7 +10,15 @@
 
 })('storge', function(root, document, undefined) {
 
-    var _invert = function(obj) {
+    var _uniqueId = (function() {
+
+            var id = 0;
+            return function() {
+                return id++;
+            };
+
+        }()),
+        _invert = function(obj) {
             var result = {},
                 key;
             for (key in obj) {
