@@ -121,7 +121,7 @@
     Storage.TYPE = _STORAGE_TYPE;
 
     Storage.prototype = {
-        constructor: storge,
+        constructor: Storage,
 
         /**
          * Clear all data from storage
