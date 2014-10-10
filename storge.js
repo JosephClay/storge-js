@@ -145,8 +145,13 @@
             this.length = 0;
 
             if (this.hasStorage) {
-                this.storage.clear();
-                return this;
+                try {
+                    this.storage.clear();
+                    return this;
+                } catch (e) {
+                    this.err(e);
+                    return;
+                }
             }
 
             this._clearCookieData();
@@ -160,14 +165,19 @@
          */
         key: function(idx) {
             if (this.hasStorage) {
-                return this.storage.key(idx);
+                try {
+                    return this.storage.key(idx);
+                } catch (e) {
+                    this.err(e);
+                    return;
+                }
             }
 
             // not perfect, but works
             var key, index = 0;
             for (key in this.data) {
                 if (index === idx)  {
-                    return k;
+                    return key;
                 } else {
                     index++;
                 }
@@ -192,9 +202,14 @@
             }
 
             if (this.hasStorage) {
-                var storedValue = this.storage.getItem(key);
-                if (!_exists(storedValue)) { return storedValue; }
-                return (storedValue === '') ? '' : JSON.parse(storedValue);
+                try {
+                    var storedValue = this.storage.getItem(key);
+                    if (!_exists(storedValue)) { return storedValue; }
+                    return (storedValue === '') ? '' : JSON.parse(storedValue);
+                } catch (e) {
+                    this.err(e);
+                    return;
+                }
             }
 
             return this.data[key];
@@ -230,9 +245,14 @@
             }
 
             if (this.hasStorage) {
-                var storage = this.storage.setItem(key, JSON.stringify(value));
-                this.length = this.storage.length;
-                return storage;
+                try {
+                    this.storage.setItem(key, JSON.stringify(value));
+                    this.length = this.storage.length;
+                    return;
+                } catch (e) {
+                    this.err(e);
+                    return;
+                }
             }
 
             this.data[key] = value;
@@ -266,9 +286,14 @@
          */
         removeItem: function(key) {
             if (this.hasStorage) {
-                var storage = this.storage.removeItem(key);
-                this.length = this.storage.length;
-                return storage;
+                try {
+                    var storage = this.storage.removeItem(key);
+                    this.length = this.storage.length;
+                    return storage;
+                } catch (e) {
+                    this.err(e);
+                    return;
+                }
             }
 
             delete this.data[key];
@@ -372,6 +397,8 @@
                 delete _timeouts[timeoutKey];
             }, duration);
         },
+
+        err: function() {},
 
         /**
          * Return storage values for JSON serialization
