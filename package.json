@@ -1,6 +1,6 @@
 {
   "name": "storge-js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "local and session storage wrapper",
   "main": "storge.js",
   "scripts": {
