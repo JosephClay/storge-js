@@ -256,11 +256,7 @@
          * @return {Storage}
          */
         flush: function() {
-            var key;
-            for (key in this.data) {
-               this.removeItem(key);
-            }
-            return this;
+            return this.clear();
         },
 
         /**
