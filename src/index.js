@@ -288,4 +288,4 @@ var store = new Storage(STORAGE_TYPE.localStorage);
  */
 store.session = new Storage(STORAGE_TYPE.sessionStorage);
 
-return store;
+module.exports = store;
