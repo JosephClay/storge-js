@@ -8,7 +8,7 @@
         this[name] = definition;
     }
 
-})('storge', function(root, undefined) {
+})('storge', function(root) {
 
     var _uniqueId = (function() {
 
@@ -20,7 +20,7 @@
         }()),
 
         _exists = function(obj) {
-            return obj !== null && obj !== undefined;
+            return obj !== null && obj !== void 0;
         },
 
         /**
