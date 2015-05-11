@@ -71,7 +71,7 @@ var Storage = function storge(type, opts) {
      * @type {String}
      * @example localStorage || sessionStorage
      */
-    this.storage = root[STORAGE_TYPE_NAME[this.type]];
+    this.storage = global[STORAGE_TYPE_NAME[this.type]];
 
     /**
      * The data stored
