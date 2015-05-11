@@ -23,35 +23,6 @@
             return obj !== null && obj !== undefined;
         },
 
-        _invert = function(obj) {
-            var result = {},
-                key;
-            for (key in obj) {
-                result[obj[key]] = key;
-            }
-            return result;
-        },
-
-        _size = function(obj) {
-            var count = 0,
-                key;
-            for (key in obj) {
-                count++;
-            }
-
-            return count;
-        },
-
-        _protoToString = Object.prototype.toString,
-
-        _isArray = Array.isArray || function(obj) {
-            return _protoToString.call(obj) === '[object Array]';
-        },
-
-        _isString = function(obj) {
-            return _protoToString.call(obj) === '[object String]';
-        },
-
         /**
          * Stores timeouts for all
          * instaces of Storage
@@ -66,10 +37,16 @@
          * @enum {Number}
          * @alias Storage.TYPE
          */
-        _STORAGE_TYPE = {
-            cookie: 0,
-            localStorage: 1,
+        STORAGE_TYPE = {
+            cookie:         0,
+            localStorage:   1,
             sessionStorage: 2
+        },
+
+        STORAGE_TYPE_NAME = {
+            0: 'cookie',
+            1: 'localStorage',
+            2: 'sessionStorage'
         };
 
     /**
@@ -95,22 +72,20 @@
          * @default STORAGE_TYPE.cookie
          * @type {Storage.TYPE}
          */
-        this.type = type || _STORAGE_TYPE.cookie;
-
-        var storageTypeName = _invert(_STORAGE_TYPE);
+        this.type = type || STORAGE_TYPE.cookie;
 
         /**
          * The name of the store.
          * @type {String}
          */
-        this.name = opts.name || storageTypeName[this.type];
+        this.name = opts.name || STORAGE_TYPE_NAME[this.type];
 
         /**
          * The type of storage we're using
          * @type {String}
          * @example localStorage || sessionStorage
          */
-        this.storage = root[storageTypeName[this.type]];
+        this.storage = root[STORAGE_TYPE_NAME[this.type]];
 
         /**
          * Whether we have access to native local/session storage
@@ -128,13 +103,10 @@
          * The storage length
          * @type {Number}
          */
-        this.length = (this.hasStorage) ? this.storage.length : _size(this.data);
+        this.length = (this.hasStorage) ? this.storage.length : Object.keys(this.data).length;
     };
 
-    Storage.TYPE = _STORAGE_TYPE;
-
     Storage.prototype = {
-        constructor: Storage,
 
         /**
          * Clear all data from storage
@@ -193,7 +165,7 @@
         getItem: function(key) {
             // Array is passed, get all values under
             // the keys
-            if (_isArray(key)) {
+            if (Array.isArray(key)) {
                 var idx = key.length;
                 while (idx--) {
                     key[idx] = this.getItem(key[idx]);
@@ -229,7 +201,7 @@
         setItem: function(key, value, opts) {
             // Not a string, must be an object,
             // multiple items are being set
-            if (!_isString(key)) {
+            if (!typeof key === 'string') {
                 var k;
                 for (k in key) {
                     this.setItem(k, key[k], value);
@@ -415,7 +387,7 @@
          * @return {String}
          */
         toString: function() {
-            return 'storage - type: ' + _invert(_STORAGE_TYPE)[this.type] + ', length: ' + this.length;
+            return 'storage - type: ' + STORAGE_TYPE_NAME[this.type] + ', length: ' + this.length;
         }
     };
 
@@ -423,12 +395,12 @@
      * Expose a store for local storage
      * @type {Storage}
      */
-    var store = new Storage(_STORAGE_TYPE.localStorage);
+    var store = new Storage(STORAGE_TYPE.localStorage);
     /**
      * Expose an instace of storage for the session
      * @type {Storage}
      */
-    store.session = new Storage(_STORAGE_TYPE.sessionStorage);
+    store.session = new Storage(STORAGE_TYPE.sessionStorage);
 
     return store;
 
