@@ -8,7 +8,7 @@
         this[name] = definition;
     }
 
-})('storge', function(root, document, undefined) {
+})('storge', function(root, undefined) {
 
     var _uniqueId = (function() {
 
@@ -302,4 +302,4 @@
 
     return store;
 
-}(window, document));
+}(window));
