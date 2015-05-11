@@ -1,7 +1,7 @@
 storge-js
 =========
 
-local and session storage wrapper adapted from [StormJs](https://github.com/JosephClay/StormJS).
+simple local and session storage wrapper
 
 ```js
 npm install storge-js
