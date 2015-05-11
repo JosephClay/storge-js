@@ -88,22 +88,16 @@
         this.storage = root[STORAGE_TYPE_NAME[this.type]];
 
         /**
-         * Whether we have access to native local/session storage
-         * @type {Boolean}
-         */
-        this.hasStorage = _exists(this.storage);
-
-        /**
          * The data stored
          * @type {Object}
          */
-        this.data = this._getData();
+        this.data = {};
 
         /**
          * The storage length
          * @type {Number}
          */
-        this.length = (this.hasStorage) ? this.storage.length : Object.keys(this.data).length;
+        this.length = this.storage.length;
     };
 
     Storage.prototype = {
@@ -116,18 +110,12 @@
             this.data = {};
             this.length = 0;
 
-            if (this.hasStorage) {
-                try {
-                    this.storage.clear();
-                    return this;
-                } catch (e) {
-                    this.err(e);
-                    return;
-                }
+            try {
+                this.storage.clear();
+                return this;
+            } catch (e) {
+                this.err(e);
             }
-
-            this._clearCookieData();
-            return this;
         },
 
         /**
@@ -136,25 +124,12 @@
          * @return {String} key
          */
         key: function(idx) {
-            if (this.hasStorage) {
-                try {
-                    return this.storage.key(idx);
-                } catch (e) {
-                    this.err(e);
-                    return;
-                }
+            try {
+                return this.storage.key(idx);
+            } catch (e) {
+                this.err(e);
+                return;
             }
-
-            // not perfect, but works
-            var key, index = 0;
-            for (key in this.data) {
-                if (index === idx)  {
-                    return key;
-                } else {
-                    index++;
-                }
-            }
-            return null;
         },
 
         /**
@@ -173,24 +148,23 @@
                 return key;
             }
 
-            if (this.hasStorage) {
-                try {
-                    var storedValue = this.storage.getItem(key);
-                    if (!_exists(storedValue)) { return storedValue; }
-                    return (storedValue === '') ? '' : JSON.parse(storedValue);
-                } catch (e) {
-                    this.err(e);
-                    return;
-                }
+            try {
+                var storedValue = this.storage.getItem(key);
+                if (!_exists(storedValue)) { return storedValue; }
+                return storedValue === '' ? '' : JSON.parse(storedValue);
+            } catch (e) {
+                this.err(e);
+                return;
             }
-
-            return this.data[key];
         },
+
         /**
          * Proxy for getItem
          * @alias {#getItem}
          */
-        get: function() { return this.getItem.apply(this, arguments); },
+        get: function() {
+            return this.getItem.apply(this, arguments);
+        },
 
         /**
          * Adds to data
@@ -201,7 +175,7 @@
         setItem: function(key, value, opts) {
             // Not a string, must be an object,
             // multiple items are being set
-            if (!typeof key === 'string') {
+            if (typeof key === 'string') {
                 var k;
                 for (k in key) {
                     this.setItem(k, key[k], value);
@@ -216,32 +190,31 @@
                 }
             }
 
-            if (this.hasStorage) {
-                try {
-                    this.storage.setItem(key, JSON.stringify(value));
-                    this.length = this.storage.length;
-                    return;
-                } catch (e) {
-                    this.err(e);
-                    return;
-                }
+            try {
+                this.storage.setItem(key, JSON.stringify(value));
+                this.length = this.storage.length;
+                return;
+            } catch (e) {
+                this.err(e);
+                return;
             }
-
-            this.data[key] = value;
-            this.length++;
-            this._setCookieData();
         },
 
         /**
          * Proxy for setItem
          * @alias {#setItem}
          */
-        store: function() { this.setItem.apply(this, arguments); },
+        store: function() {
+            this.setItem.apply(this, arguments);
+        },
+
         /**
          * Proxy for setItem
          * @alias {#setItem}
          */
-        set: function() { this.setItem.apply(this, arguments); },
+        set: function() {
+            this.setItem.apply(this, arguments);
+        },
 
         /**
          * Remove all data in storage
@@ -257,21 +230,16 @@
          * @returns {*}
          */
         removeItem: function(key) {
-            if (this.hasStorage) {
-                try {
-                    var storage = this.storage.removeItem(key);
-                    this.length = this.storage.length;
-                    return storage;
-                } catch (e) {
-                    this.err(e);
-                    return;
-                }
+            try {
+                var storage = this.storage.removeItem(key);
+                this.length = this.storage.length;
+                return storage;
+            } catch (e) {
+                this.err(e);
+                return;
             }
-
-            delete this.data[key];
-            this.length--;
-            this._setCookieData();
         },
+
         /**
          * Remove an item from storage by key
          * @param {String} key
@@ -280,76 +248,6 @@
         remove: function(key) {
             this.removeItem(key);
             return this;
-        },
-
-        /**
-         * Create a cookie of the data
-         * @private
-         */
-        _createCookie: function(value) {
-            var days = (this.type === Storage.TYPE.session) ? 0 : 365,
-                date = new Date(),
-                expires;
-
-            if (days > 0) {
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = date.toGMTString();
-            } else {
-                expires = '0';
-            }
-
-            document.cookie = this.name + '=' + value + '; expires=' + expires + '; path=/';
-        },
-
-        /**
-         * Return data from the cookie
-         * @return {*}
-         * @private
-         */
-        _readCookie: function() {
-            var nameEq = this.name + '=',
-                ca = document.cookie.split(';'),
-                idx = 0, length = ca.length, c;
-
-            for (; idx < length; idx++) {
-                c = ca[idx];
-                while (c.charAt(0) === ' ') {
-                    c = c.substring(1, c.length);
-                }
-
-                if (c.indexOf(nameEq) === 0) {
-                    return c.substring(nameEq.length, c.length);
-                }
-            }
-            return null;
-        },
-
-        /**
-         * Serializes the data in storage to a JSON
-         * string and stores it in a cookie
-         * @private
-         */
-        _setCookieData: function() {
-            var data = JSON.stringify(this.data);
-            this._createCookie(data, 365);
-        },
-
-        /**
-         * Clear the cooke
-         * @private
-         */
-        _clearCookieData: function() {
-            this._createCookie('', 365);
-        },
-
-        /**
-         * Get all data in storage
-         * @return {Object}
-         * @private
-         */
-        _getData: function() {
-            var data = (this.hasStorage) ? null : this._readCookie();
-            return (data) ? JSON.parse(data) : {};
         },
 
         /**
@@ -378,8 +276,8 @@
          * @return {*}
          */
         toJSON: function(key) {
-            var value = (key) ? this.get(key) : this._getData();
-            return value;
+            // TODO: No key, retrieve everything
+            return this.get(key);
         },
 
         /**
