@@ -2,10 +2,8 @@
   "name": "storge-js",
   "version": "0.0.9",
   "description": "local and session storage wrapper",
-  "main": "storge.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "./index.js",
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/JosephClay/storge-js.git"
