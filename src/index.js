@@ -26,13 +26,11 @@ var _uniqueId = (function() {
      * @alias Storage.TYPE
      */
     STORAGE_TYPE = {
-        cookie:         0,
         localStorage:   1,
         sessionStorage: 2
     },
 
     STORAGE_TYPE_NAME = {
-        0: 'cookie',
         1: 'localStorage',
         2: 'sessionStorage'
     };
