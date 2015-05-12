@@ -142,7 +142,7 @@ module.exports = function storge(storage) {
 
     var api = {
         namespace: function(name) {
-            gen.space(name + '_');
+            gen.space = name + '_';
             return api;
         },
 
