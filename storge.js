@@ -100,7 +100,7 @@ var unapplyNamespace = function(key) {
 
 module.exports = function(name) {
     return {
-        space: name === undefined ? '' : name,
+        space: name === undefined ? '' : name + '_',
         ns:    applyNamespace,
         esc:   unapplyNamespace
     };
