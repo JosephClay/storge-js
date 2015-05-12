@@ -1,4 +1,4 @@
-var storage = require('./store');
+var storage = require('./storage');
 
 /**
  * Expose a store for local storage
