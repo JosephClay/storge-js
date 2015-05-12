@@ -1,9 +1,4 @@
 /**
- * Based off of {@link https://gist.github.com/remy/350433 Remy's} polyfill.
- *
- * Adapted to use the same Storage object for both local and session storage.
- *
- * @class Storage
  * @param {Object} localStorage, sessionStorage
  */
 module.exports = function storge(storage) {
