@@ -8,8 +8,6 @@ npm install storge-js
 ```
 
 ##Examples
-=========
-
 localStorage
 ```js
 var store = require('storge-js');
@@ -32,7 +30,6 @@ session.get('foo'); // 1
 ```
 
 ##Namespacing
-=========
 the store can be namespaced by passing a string
 to `namespace`
 ```js
@@ -42,8 +39,6 @@ store.namespace('TEST')
 ```
 
 ##Expiration
-=========
-
 keys can expire by setting a time-to-live:
 ```js
 store.set('foo', 1, {
@@ -55,7 +50,6 @@ will be removed and `undefined` will be returned. This works
 across page loads.
 
 ##Nice to haves
-=========
 set multiple keys and values
 ```js
 store.set({
