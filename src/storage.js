@@ -100,7 +100,7 @@ module.exports = function storge(storage) {
             for (k in key) {
                 setItem(k, key[k], value);
             }
-            return;
+            return api;
         }
 
         // Expiration
@@ -112,6 +112,7 @@ module.exports = function storge(storage) {
 
         try {
             storage.setItem(keyGen(key), JSON.stringify(value));
+            return api;
         } catch (e) {
             api.err(e);
         }
