@@ -36,6 +36,6 @@ keys can also expire:
 var store = require('storge-js');
 
 store.set('foo', 1, {
-  expiration: 60 * 1000 // ttl in ms
+  ttl: 60 * 1000 // in ms
 });
 ```

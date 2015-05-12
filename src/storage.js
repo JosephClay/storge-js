@@ -1,39 +1,13 @@
+var expiration = require('./expiration');
+var keygen = require('./keygen');
+
 /**
  * @param {Object} localStorage, sessionStorage
  */
-module.exports = function storge(storage) {
-    var namespace = '';
-    var keyGen = function(key) {
-        return namespace + key;
-    };
-    var deGen = function(key) {
-        return namespace === '' ? key :
-            key.substr(0, namespace.length) === namespace ?
-            key.substr(namespace.length) : key;
-    };
-
-    /**
-     * Stores timeouts for all
-     * instaces of Storage
-     * @type {Object}
-     * @private
-     */
-    var timeouts = {};
-
-    /**
-     * Removes data from a key after an interval
-     * @param {String} key
-     * @param {Number} duration
-     * @private
-     */
-    var setExpiration = function(key, duration) {
-        if (timeouts[key]) { clearTimeout(timeouts[key]); }
-
-        timeouts[key] = setTimeout(function() {
-            removeItem(keyGen(key));
-            delete timeouts[key];
-        }, duration || 0);
-    };
+module.exports = function storge(type) {
+    var storage = global[type];
+    var expire = expiration(storage);
+    var gen = keygen();
 
     /**
      * Clear all data from storage
@@ -43,7 +17,7 @@ module.exports = function storge(storage) {
         try {
             storage.clear();
             return api;
-        } catch (e) {
+        } catch(e) {
             api.err(e);
         }
     };
@@ -55,8 +29,8 @@ module.exports = function storge(storage) {
      */
     var getKey = function(idx) {
         try {
-            return deGen(storage.key(idx));
-        } catch (e) {
+            return gen.esc(storage.key(idx));
+        } catch(e) {
             api.err(e);
         }
     };
@@ -72,16 +46,21 @@ module.exports = function storge(storage) {
         if (Array.isArray(key)) {
             var idx = key.length;
             while (idx--) {
-                key[idx] = getItem(keyGen(key[idx]));
+                key[idx] = getItem(gen.ns(key[idx]));
             }
             return key;
         }
 
         try {
-            var storedValue = storage.getItem(keyGen(key));
+            var genkey = gen.ns(key);
+            if (expire.expired(genkey)) {
+                removeItem(key);
+                return undefined;
+            }
+            var storedValue = storage.getItem(genkey);
             if (storedValue !== undefined) { return storedValue; }
             return storedValue === '' ? '' : JSON.parse(storedValue);
-        } catch (e) {
+        } catch(e) {
             api.err(e);
         }
     };
@@ -89,7 +68,7 @@ module.exports = function storge(storage) {
     /**
      * Adds to data
      * @param {String|Object} key
-     * @param {*|undefined} value
+     * @param {*} value
      * @param {Object} [opts] for setting the expiration
      */
     var setItem = function(key, value, opts) {
@@ -105,15 +84,15 @@ module.exports = function storge(storage) {
 
         // Expiration
         if (opts) {
-            if (opts.expiration !== undefined) {
-                setExpiration(key, opts.expiration);
+            if (opts.ttl !== undefined) {
+                expire.set(gen.ns(key), opts.ttl);
             }
         }
 
         try {
-            storage.setItem(keyGen(key), JSON.stringify(value));
+            storage.setItem(gen.ns(key), JSON.stringify(value));
             return api;
-        } catch (e) {
+        } catch(e) {
             api.err(e);
         }
     };
@@ -125,14 +104,19 @@ module.exports = function storge(storage) {
      */
     var removeItem = function(key) {
         try {
-            var stored = storage.removeItem(keyGen(key));
+            var stored = storage.removeItem(gen.ns(key));
             return stored;
-        } catch (e) {
+        } catch(e) {
             api.err(e);
         }
     };
 
     var api = {
+        namespace: function(name) {
+            gen.space(name);
+            return api;
+        },
+
         clear:      clear,
         key:        getKey,
         getItem:    getItem,
@@ -182,7 +166,7 @@ module.exports = function storge(storage) {
             // no key, retrieve everything
             return Object.keys(storage)
                 .reduce(function(memo, key) {
-                    memo[deGen(key)] = getItem(key);
+                    memo[gen.esc(key)] = getItem(key);
                     return memo;
                 }, {});
         }
