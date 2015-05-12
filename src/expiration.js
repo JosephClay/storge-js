@@ -28,7 +28,7 @@ var setExpirations = function(storage, expirations) {
 };
 
 module.exports = function(storage) {
-    var expirations = truncateExpirations(getExpirations(storage) || {});
+    var expirations = truncateExpirations(storage, getExpirations(storage) || {});
 
     return {
         expired: function(key) {
