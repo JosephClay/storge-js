@@ -142,7 +142,7 @@ module.exports = function storge(storage) {
 
     var api = {
         namespace: function(name) {
-            gen.space(name);
+            gen.space(name + '_');
             return api;
         },
 
@@ -184,7 +184,8 @@ module.exports = function storge(storage) {
             // no key, retrieve everything
             return Object.keys(storage)
                 .reduce(function(memo, key) {
-                    memo[gen.esc(key)] = getItem(key);
+                    var esckey = gen.esc(key);
+                    memo[esckey] = getItem(esckey);
                     return memo;
                 }, {});
         }
