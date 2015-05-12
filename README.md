@@ -7,7 +7,7 @@ simple local and session storage wrapper
 npm install storge-js
 ```
 
-Examples
+##Examples
 =========
 
 localStorage
@@ -31,7 +31,7 @@ session.set('foo', 1);
 session.get('foo'); // 1
 ```
 
-Namespacing
+##Namespacing
 =========
 the store can be namespaced by passing a string
 to `namespace`
@@ -41,7 +41,7 @@ store.namespace('TEST')
     .get('foo'); // 1
 ```
 
-Expiration
+##Expiration
 =========
 
 keys can expire by setting a time-to-live:
@@ -54,7 +54,7 @@ The next time the key is accessed, if it has expired it
 will be removed and `undefined` will be returned. This works
 across page loads.
 
-Nice to haves
+##Nice to haves
 =========
 set multiple keys and values
 ```js
