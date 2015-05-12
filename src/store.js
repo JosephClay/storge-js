@@ -7,6 +7,15 @@
  * @param {Object} localStorage, sessionStorage
  */
 module.exports = function storge(storage) {
+    var namespace = '';
+    var keyGen = function(key) {
+        return namespace + key;
+    };
+    var deGen = function(key) {
+        return key.substr(0, namespace.length) === namespace ?
+            key.substr(namespace.length) : key;
+    };
+
     /**
      * Stores timeouts for all
      * instaces of Storage
@@ -25,7 +34,7 @@ module.exports = function storge(storage) {
         if (timeouts[key]) { clearTimeout(timeouts[key]); }
 
         timeouts[key] = setTimeout(function() {
-            removeItem(key);
+            removeItem(keyGen(key));
             delete timeouts[key];
         }, duration || 0);
     };
@@ -50,7 +59,7 @@ module.exports = function storge(storage) {
      */
     var getKey = function(idx) {
         try {
-            return storage.key(idx);
+            return deGen(storage.key(idx));
         } catch (e) {
             api.err(e);
         }
@@ -67,13 +76,13 @@ module.exports = function storge(storage) {
         if (Array.isArray(key)) {
             var idx = key.length;
             while (idx--) {
-                key[idx] = getItem(key[idx]);
+                key[idx] = getItem(keyGen(key[idx]));
             }
             return key;
         }
 
         try {
-            var storedValue = storage.getItem(key);
+            var storedValue = storage.getItem(keyGen(key));
             if (storedValue !== undefined) { return storedValue; }
             return storedValue === '' ? '' : JSON.parse(storedValue);
         } catch (e) {
@@ -106,7 +115,7 @@ module.exports = function storge(storage) {
         }
 
         try {
-            storage.setItem(key, JSON.stringify(value));
+            storage.setItem(keyGen(key), JSON.stringify(value));
         } catch (e) {
             api.err(e);
         }
@@ -119,7 +128,7 @@ module.exports = function storge(storage) {
      */
     var removeItem = function(key) {
         try {
-            var stored = storage.removeItem(key);
+            var stored = storage.removeItem(keyGen(key));
             return stored;
         } catch (e) {
             api.err(e);
