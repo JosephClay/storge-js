@@ -1,6 +1,14 @@
 var expiration = require('./expiration');
 var keygen = require('./keygen');
 
+var serialize = function(value) {
+    return JSON.stringify(value);
+};
+
+var deserialize = function(value) {
+    return value === undefined || value === '' ? value : JSON.parse(value);
+};
+
 /**
  * @param {Object} localStorage, sessionStorage
  */
@@ -50,15 +58,17 @@ module.exports = function storge(storage) {
             return key;
         }
 
+        var genkey = gen.ns(key);
+        if (expire.expired(genkey)) {
+            removeItem(key);
+            return undefined;
+        }
+
+        return tryGetItem(genkey);
+    };
+    var tryGetItem = function(genkey) {
         try {
-            var genkey = gen.ns(key);
-            if (expire.expired(genkey)) {
-                removeItem(key);
-                return undefined;
-            }
-            var storedValue = storage.getItem(genkey);
-            if (storedValue !== undefined) { return storedValue; }
-            return storedValue === '' ? '' : JSON.parse(storedValue);
+            return deserialize(storage.getItem(genkey));
         } catch(e) {
             api.err(e);
         }
@@ -81,15 +91,20 @@ module.exports = function storge(storage) {
             return api;
         }
 
+        var genkey = gen.ns(key);
+
         // Expiration
         if (opts) {
             if (opts.ttl !== undefined) {
-                expire.set(gen.ns(key), opts.ttl);
+                expire.set(genkey, opts.ttl);
             }
         }
 
+        trySetItem(genkey, serialize(value));
+    };
+    var trySetItem = function(genkey, value) {
         try {
-            storage.setItem(gen.ns(key), JSON.stringify(value));
+            storage.setItem(genkey, value);
             return api;
         } catch(e) {
             api.err(e);
@@ -170,12 +185,6 @@ module.exports = function storge(storage) {
                 }, {});
         }
     };
-
-    Object.defineProperty(api, 'length', {
-        get: function() {
-            return storage.length;
-        }
-    });
 
     return api;
 };

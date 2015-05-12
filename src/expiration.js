@@ -1,9 +1,7 @@
 var KEY = '__STORGE__';
 
 var attempt = function(fn) {
-    try {
-        return fn();
-    } catch(e) {}
+    try { return fn(); } catch(e) {}
 };
 
 var getExpirations = function(storage) {
