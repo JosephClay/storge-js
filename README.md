@@ -33,11 +33,11 @@ session.get('foo'); // 1
 
 Namespacing
 =========
-the store can be namespaced by passing a string
-to `namespace`
+the store can be namespaced by invoking storge with a string
 ```js
-store.namespace('TEST')
-    .set('foo', 1); // shows up in localStorage as 'TEST_foo'
+var testStore = require('storge-js')('TEST');
+
+testStore.set('foo', 1); // shows up in localStorage as 'TEST_foo'
     .get('foo'); // 1
 ```
 
