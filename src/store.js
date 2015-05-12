@@ -174,16 +174,11 @@ module.exports = function storge(storage) {
             }
 
             // no key, retrieve everything
-            var idx = storage.length,
-                keys = [];
-            while (idx--) {
-                keys[idx] = getKey(idx);
-            }
-
-            return keys.reduce(function(memo, key) {
-                memo[key] = getItem(key);
-                return memo;
-            }, {});
+            return Object.keys(storage)
+                .reduce(function(memo, key) {
+                    memo[deGen(key)] = getItem(key);
+                    return memo;
+                }, {});
         }
     };
 
