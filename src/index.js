@@ -1,14 +1,14 @@
-var Storage = require('./store');
+var storage = require('./store');
 
 /**
  * Expose a store for local storage
- * @type {Storage}
+ * @type {storage}
  */
-var store = new Storage('localStorage');
+var store = storage(global.localStorage);
 /**
  * Expose an instace of storage for the session
- * @type {Storage}
+ * @type {storage}
  */
-store.session = new Storage('sessionStorage');
+store.session = storage(global.sessionStorage);
 
 module.exports = store;
