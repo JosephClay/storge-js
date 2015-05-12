@@ -117,8 +117,21 @@ module.exports = function storge(storage) {
      * @returns {*}
      */
     var removeItem = function(key) {
+        // Array is passed, remove all values under
+        // the keys
+        if (Array.isArray(key)) {
+            var idx = key.length;
+            while (idx--) {
+                key[idx] = tryRemoveItem(gen.ns(key[idx]));
+            }
+            return key;
+        }
+
+        return tryRemoveItem(gen.ns(key));
+    };
+    var tryRemoveItem = function(genkey) {
         try {
-            var stored = storage.removeItem(gen.ns(key));
+            var stored = storage.removeItem(genkey);
             return stored;
         } catch(e) {
             api.err(e);
@@ -140,21 +153,10 @@ module.exports = function storge(storage) {
         err: function() {},
 
         /**
-         * Proxy for getItem
-         * @alias {#getItem}
+         * Proxies
          */
         get: getItem,
-
-        /**
-         * Proxy for setItem
-         * @alias {#setItem}
-         */
         set: setItem,
-
-        /**
-         * Proxy for clear
-         * @alias {#clear}
-         */
         flush: clear,
 
         /**
