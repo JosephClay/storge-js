@@ -11,6 +11,16 @@ var getExpirations = function(storage) {
     return result === undefined || result === '' ? result : JSON.parse(result);
 };
 
+var truncateExpirations = function(storage, expirations) {
+    var keysInStorage = Object.keys(storage);
+    for (var key in expirations) {
+        if (keysInStorage.indexOf(key) === -1) {
+            delete expirations[key];
+        }
+    }
+    return expirations;
+};
+
 var setExpirations = function(storage, expirations) {
     attempt(function() {
         storage.setItem(KEY, JSON.stringify(expirations));
@@ -18,7 +28,7 @@ var setExpirations = function(storage, expirations) {
 };
 
 module.exports = function(storage) {
-    var expirations = getExpirations(storage) || {};
+    var expirations = truncateExpirations(getExpirations(storage) || {});
 
     return {
         expired: function(key) {
