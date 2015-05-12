@@ -12,7 +12,8 @@ module.exports = function storge(storage) {
         return namespace + key;
     };
     var deGen = function(key) {
-        return key.substr(0, namespace.length) === namespace ?
+        return namespace === '' ? key :
+            key.substr(0, namespace.length) === namespace ?
             key.substr(namespace.length) : key;
     };
 
