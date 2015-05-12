@@ -1,9 +1,9 @@
-/*! storge-js - v0.0.9 - 2015-05-12 %>
+/*! storge-js - v1.0.4 - 2015-05-12 %>
  * https://github.com/JosephClay/storge-js
  * Copyright (c) 2013-2015 ; License: MIT */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.storge = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var storage = require(4);
+var storage = require(5);
 
 /**
  * Expose a store for local storage
@@ -18,7 +18,7 @@ store.session = storage(global.sessionStorage);
 
 module.exports = store;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"4":4}],2:[function(require,module,exports){
+},{"5":5}],2:[function(require,module,exports){
 var KEY = '__STORGE__';
 
 var attempt = function(fn) {
@@ -49,7 +49,7 @@ var setExpirations = function(storage, expirations) {
 };
 
 module.exports = function(storage) {
-    var expirations = truncateExpirations(getExpirations(storage) || {});
+    var expirations = truncateExpirations(storage, getExpirations(storage) || {});
 
     return {
         expired: function(key) {
@@ -68,6 +68,26 @@ module.exports = function(storage) {
     };
 };
 },{}],3:[function(require,module,exports){
+/**
+ * Object merger
+ * @param {Objects}
+ * @return {Object}
+ */
+module.exports = function(base) {
+    var args = arguments,
+        idx = 1, length = args.length,
+        key, merger;
+    for (; idx < length; idx++) {
+        merger = args[idx];
+
+        for (key in merger) {
+            base[key] = merger[key];
+        }
+    }
+
+    return base;
+};
+},{}],4:[function(require,module,exports){
 var applyNamespace = function(key) {
     return this.space + key;
 };
@@ -78,16 +98,17 @@ var unapplyNamespace = function(key) {
         key.substr(ns.length) : key;
 };
 
-module.exports = function() {
+module.exports = function(name) {
     return {
-        space: '',
+        space: name === undefined ? '' : name,
         ns:    applyNamespace,
         esc:   unapplyNamespace
     };
 };
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
+var extend = require(3);
 var expiration = require(2);
-var keygen = require(3);
+var keygen = require(4);
 
 var serialize = function(value) {
     return JSON.stringify(value);
@@ -100,9 +121,10 @@ var deserialize = function(value) {
 /**
  * @param {Object} localStorage, sessionStorage
  */
-module.exports = function storge(storage) {
+module.exports = function storge(storage, namespace) {
+    var api;
     var expire = expiration(storage);
-    var gen = keygen();
+    var gen = keygen(namespace);
 
     /**
      * Clear all data from storage
@@ -228,58 +250,55 @@ module.exports = function storge(storage) {
         }
     };
 
-    var api = {
-        namespace: function(name) {
-            gen.space(name + '_');
-            return api;
-        },
+    return (
+        api = extend(function(name) {
+            return storge(storage, name);
+        }, {
+            clear:      clear,
+            key:        getKey,
+            getItem:    getItem,
+            setItem:    setItem,
+            removeItem: removeItem,
 
-        clear:      clear,
-        key:        getKey,
-        getItem:    getItem,
-        setItem:    setItem,
-        removeItem: removeItem,
+            err: function() {},
 
-        err: function() {},
+            /**
+             * Proxies
+             */
+            get: getItem,
+            set: setItem,
+            flush: clear,
 
-        /**
-         * Proxies
-         */
-        get: getItem,
-        set: setItem,
-        flush: clear,
+            /**
+             * Remove an item from storage by key
+             * @param {String} key
+             * @returns {Storage}
+             */
+            remove: function(key) {
+                removeItem(key);
+                return api;
+            },
 
-        /**
-         * Remove an item from storage by key
-         * @param {String} key
-         * @returns {Storage}
-         */
-        remove: function(key) {
-            removeItem(key);
-            return api;
-        },
+            /**
+             * Return storage values for JSON serialization
+             * @param  {String} [key] return a specific value
+             * @return {*}
+             */
+            toJSON: function(key) {
+                if (key !== undefined) {
+                    return getItem(key);
+                }
 
-        /**
-         * Return storage values for JSON serialization
-         * @param  {String} [key] return a specific value
-         * @return {*}
-         */
-        toJSON: function(key) {
-            if (key !== undefined) {
-                return getItem(key);
+                // no key, retrieve everything
+                return Object.keys(storage)
+                    .reduce(function(memo, key) {
+                        var esckey = gen.esc(key);
+                        memo[esckey] = getItem(esckey);
+                        return memo;
+                    }, {});
             }
-
-            // no key, retrieve everything
-            return Object.keys(storage)
-                .reduce(function(memo, key) {
-                    var esckey = gen.esc(key);
-                    memo[esckey] = getItem(esckey);
-                    return memo;
-                }, {});
-        }
-    };
-
-    return api;
+        })
+    );
 };
-},{"2":2,"3":3}]},{},[1])(1)
+},{"2":2,"3":3,"4":4}]},{},[1])(1)
 });
