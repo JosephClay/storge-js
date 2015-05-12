@@ -31,11 +31,42 @@ session.set('foo', 1);
 session.get('foo'); // 1
 ```
 
-keys can also expire:
+Namespacing
+=========
+the store can be namespaced by passing a string
+to `namespace`
 ```js
-var store = require('storge-js');
+store.namespace('TEST')
+    .set('foo', 1); // shows up in localStorage as 'TEST_foo'
+    .get('foo'); // 1
+```
 
+Expiration
+=========
+
+keys can expire by setting a time-to-live:
+```js
 store.set('foo', 1, {
   ttl: 60 * 1000 // in ms
 });
 ```
+The next time the key is accessed, if it has expired it
+will be removed and `undefined` will be returned. This works
+across page loads.
+
+Nice to haves
+=========
+set multiple keys and values
+```js
+store.set({
+    foo: 1,
+    bar: 2
+});
+```
+
+get or remove multiple values
+```js
+store.get(['foo', 'bar']); // [1, 2]
+store.remove(['foo', 'bar']);
+```
+
