@@ -121,11 +121,12 @@ module.exports = function storge(storage) {
         // Array is passed, remove all values under
         // the keys
         if (Array.isArray(key)) {
-            var idx = key.length;
+            var arr = key.slice(),
+                idx = arr.length;
             while (idx--) {
-                key[idx] = tryRemoveItem(gen.ns(key[idx]));
+                arr[idx] = tryRemoveItem(gen.ns(arr[idx]));
             }
-            return key;
+            return arr;
         }
 
         return tryRemoveItem(gen.ns(key));
