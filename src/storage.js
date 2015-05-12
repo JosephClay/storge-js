@@ -4,8 +4,7 @@ var keygen = require('./keygen');
 /**
  * @param {Object} localStorage, sessionStorage
  */
-module.exports = function storge(type) {
-    var storage = global[type];
+module.exports = function storge(storage) {
     var expire = expiration(storage);
     var gen = keygen();
 
