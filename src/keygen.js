@@ -8,9 +8,9 @@ var unapplyNamespace = function(key) {
         key.substr(ns.length) : key;
 };
 
-module.exports = function() {
+module.exports = function(name) {
     return {
-        space: '',
+        space: name === undefined ? '' : name,
         ns:    applyNamespace,
         esc:   unapplyNamespace
     };

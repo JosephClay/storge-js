@@ -1,3 +1,4 @@
+var extend = require('./extend');
 var expiration = require('./expiration');
 var keygen = require('./keygen');
 
@@ -12,9 +13,10 @@ var deserialize = function(value) {
 /**
  * @param {Object} localStorage, sessionStorage
  */
-module.exports = function storge(storage) {
+module.exports = function storge(storage, namespace) {
+    var api;
     var expire = expiration(storage);
-    var gen = keygen();
+    var gen = keygen(namespace);
 
     /**
      * Clear all data from storage
@@ -140,56 +142,53 @@ module.exports = function storge(storage) {
         }
     };
 
-    var api = {
-        namespace: function(name) {
-            gen.space = name + '_';
-            return api;
-        },
+    return (
+        api = extend(function(name) {
+            return storge(storage, name);
+        }, {
+            clear:      clear,
+            key:        getKey,
+            getItem:    getItem,
+            setItem:    setItem,
+            removeItem: removeItem,
 
-        clear:      clear,
-        key:        getKey,
-        getItem:    getItem,
-        setItem:    setItem,
-        removeItem: removeItem,
+            err: function() {},
 
-        err: function() {},
+            /**
+             * Proxies
+             */
+            get: getItem,
+            set: setItem,
+            flush: clear,
 
-        /**
-         * Proxies
-         */
-        get: getItem,
-        set: setItem,
-        flush: clear,
+            /**
+             * Remove an item from storage by key
+             * @param {String} key
+             * @returns {Storage}
+             */
+            remove: function(key) {
+                removeItem(key);
+                return api;
+            },
 
-        /**
-         * Remove an item from storage by key
-         * @param {String} key
-         * @returns {Storage}
-         */
-        remove: function(key) {
-            removeItem(key);
-            return api;
-        },
+            /**
+             * Return storage values for JSON serialization
+             * @param  {String} [key] return a specific value
+             * @return {*}
+             */
+            toJSON: function(key) {
+                if (key !== undefined) {
+                    return getItem(key);
+                }
 
-        /**
-         * Return storage values for JSON serialization
-         * @param  {String} [key] return a specific value
-         * @return {*}
-         */
-        toJSON: function(key) {
-            if (key !== undefined) {
-                return getItem(key);
+                // no key, retrieve everything
+                return Object.keys(storage)
+                    .reduce(function(memo, key) {
+                        var esckey = gen.esc(key);
+                        memo[esckey] = getItem(esckey);
+                        return memo;
+                    }, {});
             }
-
-            // no key, retrieve everything
-            return Object.keys(storage)
-                .reduce(function(memo, key) {
-                    var esckey = gen.esc(key);
-                    memo[esckey] = getItem(esckey);
-                    return memo;
-                }, {});
-        }
-    };
-
-    return api;
+        })
+    );
 };
