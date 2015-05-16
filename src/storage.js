@@ -1,6 +1,7 @@
 var extend = require('./extend');
 var expiration = require('./expiration');
 var keygen = require('./keygen');
+var keygen = require('./keygen');
 
 var serialize = function(value) {
     return JSON.stringify(value);
@@ -181,6 +182,7 @@ module.exports = function storge(storage, namespace) {
              * @param  {String} [key] return a specific value
              * @return {*}
              */
+            // TODO: Better toJSON with keygen
             toJSON: function(key) {
                 if (key !== undefined) {
                     return getItem(key);
