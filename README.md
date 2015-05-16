@@ -92,6 +92,8 @@ store.get(['foo', 'bar']); // [1, 2]
 store.remove(['foo', 'bar']);
 ```
 
+Async methods: `getAsync`, `setAsync`, `removeAsync`, `clearAsync`, `keyAsync`, `keysAsync`.
+
 ##Dangerous methods
 `.flush()` will wipe the entire store, regardless of namespace and versioning.
 `.backup()` will create an object of all key-value pairs in the store without
