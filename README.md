@@ -28,11 +28,11 @@ session.get('foo'); // 1
 ```
 
 ##Expiration
-Keys can expire by setting a time-to-live:
+Keys can expire by setting a time-to-live (in ms):
 ```js
-store.set('foo', 1, {
-  ttl: 60 * 1000 // in ms
-});
+store.set('foo', 1, 60 * 1000);
+// or
+store.set('foo', 1, { ttl: 60 * 1000 });
 ```
 The next time the key is accessed, if it has expired it
 will be removed and `undefined` will be returned. This works
