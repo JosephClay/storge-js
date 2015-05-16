@@ -1,17 +1,36 @@
-var applyNamespace = function(key) {
-    return this.space + key;
-};
-var unapplyNamespace = function(key) {
-    var ns = this.space;
-    return ns === '' ? key :
-        key.substr(0, ns.length) === ns ?
-        key.substr(ns.length) : key;
+var createKey = function(name, semver) {
+    if (name === undefined) {
+        return semver !== undefined ? '_' : '';
+    }
+
+    return name + '_';
 };
 
-module.exports = function(name) {
+var createSemver = function(semver) {
+    return semver !== undefined ?
+        semver.replace(/\./g, '') + '_' :
+        '_';
+};
+
+var encode = function(key) {
+    return this.ver + this.space + key;
+};
+var decode = function(key) {
+    return key.substr(this.space.length).substr(this.ver.length);
+};
+
+var constant = function(key) { return key; };
+
+module.exports = function(name, semver) {
+    var space  = createKey(name, semver),
+        ver    = createSemver(semver),
+        active = space || ver;
+
     return {
-        space: name === undefined ? '' : name + '_',
-        ns:    applyNamespace,
-        esc:   unapplyNamespace
+        active: active,
+        space:  space,
+        ver:    ver,
+        ns:     active ? encode: constant,
+        esc:    active ? decode: constant
     };
 };
