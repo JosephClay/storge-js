@@ -164,6 +164,42 @@ module.exports = function storge(storage, namespace, semver) {
         },
 
         /**
+         * Async methods
+         */
+        getAsync: function(key) {
+            return new Promise(function(resolve) {
+                resolve(getItem(key));
+            });
+        },
+        setAsync: function(key, value, opts) {
+            return new Promise(function(resolve) {
+                setItem(key, value, opts);
+                resolve();
+            });
+        },
+        removeAsync: function(key) {
+            return new Promise(function(resolve) {
+                resolve(removeItem(key));
+            });
+        },
+        clearAsync: function() {
+            return new Promise(function(resolve) {
+                clear();
+                resolve();
+            });
+        },
+        keyAsync: function(index) {
+            return new Promise(function(resolve) {
+                resolve(getKey(index));
+            });
+        },
+        keysAsync: function() {
+            return new Promise(function(resolve) {
+                resolve(getKeys());
+            });
+        },
+
+        /**
          * Migration
          */
         migration: function(config) {
