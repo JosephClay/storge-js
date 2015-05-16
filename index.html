@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>storge test</title>
+        <style>
+            body { padding: 50px; font-family: sans-serif; }
+
+        </style>
+    </head>
+    <body>
+        <p>
+            <label for="namespace">namespace</label>
+            <br>
+            <input id="namespace" type="text" value="TEST">
+        </p>
+
+        <p>
+            <label for="version">version</label>
+            <br>
+            <input id="version" type="text">
+        </p>
+
+        <button id="set">Set</button>
+        <button id="get">Get</button>
+        <button id="clear">Clear</button>
+        <button id="tojson">JSON</button>
+        <button id="flush">Flush</button>
+        <button id="backup">Backup</button>
+
+        <script src="storge.js"></script>
+        <script>
+            (function() {
+                var $ = function(id) { return document.getElementById(id.substr(1)); },
+                    namespace = $('#namespace'),
+                    version = $('#version'),
+                    store = function() {
+                        return storge(namespace.value, version.value);
+                    };
+
+                $('#set').addEventListener('click', function() {
+                    var key = prompt('key')
+                    var value = prompt('value');
+                    console.log('set', store().set(key, value));
+                });
+                $('#get').addEventListener('click', function() {
+                    var key = prompt('key')
+                    console.log('get', store().get(key));
+                });
+                $('#clear').addEventListener('click', function() {
+                    console.log('clear', store().clear());
+                });
+                $('#tojson').addEventListener('click', function() {
+                    console.log('toJSON', store().toJSON());
+                });
+                $('#flush').addEventListener('click', function() {
+                    storge.flush();
+                });
+                $('#backup').addEventListener('click', function() {
+                    storge.backup();
+                });
+            }());
+        </script>
+    </body>
+</html>
