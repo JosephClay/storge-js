@@ -1,9 +1,9 @@
-/*! storge-js - v1.0.4 - 2015-05-12 %>
+/*! storge-js - v1.0.5 - 2015-05-16 %>
  * https://github.com/JosephClay/storge-js
  * Copyright (c) 2013-2015 ; License: MIT */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.storge = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var storage = require(5);
+var storage = require(6);
 
 /**
  * Expose a store for local storage
@@ -18,22 +18,12 @@ store.session = storage(global.sessionStorage);
 
 module.exports = store;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"5":5}],2:[function(require,module,exports){
+},{"6":6}],2:[function(require,module,exports){
+var tryItem = require(7);
 var KEY = '__STORGE__';
 
-var attempt = function(fn) {
-    try { return fn(); } catch(e) {}
-};
-
-var getExpirations = function(storage) {
-    var result = attempt(function() {
-        return storage.getItem(KEY);
-    });
-    return result === undefined || result === '' ? result : JSON.parse(result);
-};
-
 var truncateExpirations = function(storage, expirations) {
-    var keysInStorage = Object.keys(storage);
+    var keysInStorage = tryItem.keys(storage);
     for (var key in expirations) {
         if (keysInStorage.indexOf(key) === -1) {
             delete expirations[key];
@@ -42,14 +32,8 @@ var truncateExpirations = function(storage, expirations) {
     return expirations;
 };
 
-var setExpirations = function(storage, expirations) {
-    attempt(function() {
-        storage.setItem(KEY, JSON.stringify(expirations));
-    });
-};
-
 module.exports = function(storage) {
-    var expirations = truncateExpirations(storage, getExpirations(storage) || {});
+    var expirations = truncateExpirations(storage, tryItem.get(storage, KEY) || {});
 
     return {
         expired: function(key) {
@@ -57,17 +41,17 @@ module.exports = function(storage) {
             if (!hasExpired) { return hasExpired; }
 
             delete expirations[key];
-            setExpirations(storage, expirations);
+            tryItem.set(storage, KEY, expirations);
 
             return true;
         },
         set: function(key, duration) {
             expirations[key] = Date.now() + (duration || 0);
-            setExpirations(storage, expirations);
+            tryItem.set(storage, KEY, expirations);
         }
     };
 };
-},{}],3:[function(require,module,exports){
+},{"7":7}],3:[function(require,module,exports){
 /**
  * Object merger
  * @param {Objects}
@@ -88,68 +72,235 @@ module.exports = function(base) {
     return base;
 };
 },{}],4:[function(require,module,exports){
-var applyNamespace = function(key) {
-    return this.space + key;
-};
-var unapplyNamespace = function(key) {
-    var ns = this.space;
-    return ns === '' ? key :
-        key.substr(0, ns.length) === ns ?
-        key.substr(ns.length) : key;
+var extend  = require(3);
+var version = require(8);
+
+var exists = function(param) {
+    return param !== undefined && param !== '';
 };
 
-module.exports = function(name) {
+var createKey = function(name, semver) {
+    if (!exists(name)) {
+        return exists(semver) ? '_' : '';
+    }
+
+    return name + '_';
+};
+
+var createSemver = function(name, semver) {
+    if (!exists(semver)) {
+        return exists(name) ? '0.0.0_' : '';
+    }
+
+    if (!version.valid(semver)) {
+        throw 'invalid semver provided: ' + semver;
+    }
+
+    return semver + '_';
+};
+
+var constant = function(key) { return key; };
+
+var isNotEncoded = function(key) {
+    var keys = key.split('_');
+    // doesn't have enough keys to be encoded
+    if (keys.length < 3) { return true; }
+
+    var ver = keys[1];
+    // not a semantic version = not encoded
+    return !version.valid(ver);
+};
+
+module.exports = extend(function(name, semver) {
+    var space    = createKey(name, semver),
+        ver      = createSemver(name, semver),
+        active   = exists(space) || exists(ver),
+        rMatches = new RegExp('^' + space + ver);
+
+    var encode = function(key) {
+        return space + ver + key;
+    };
+
+    var decode = function(key) {
+        return key.substr(space.length).substr(ver.length);
+    };
+
+    var matches = function(key) {
+        return rMatches.test(key);
+    };
+
     return {
-        space: name === undefined ? '' : name + '_',
-        ns:    applyNamespace,
-        esc:   unapplyNamespace
+        active:    active,
+        space:     space,
+        ver:       ver,
+
+        enc:       active ? encode  : constant,
+        esc:       active ? decode  : constant,
+
+        matches:   active ? matches : isNotEncoded
+    };
+}, {
+    grabVer: function(key) {
+        return key.split('_')[1];
+    },
+    grabNs: function(key) {
+        return key.split('_')[0];
+    },
+    enc: function(space, ver, key) {
+        return space + ver + key;
+    }
+});
+},{"3":3,"8":8}],5:[function(require,module,exports){
+var version = require(8);
+var keygen  = require(4);
+var tryItem = require(7);
+
+var generateVersionMap = function(storage, namespace) {
+    return tryItem.keys(storage)
+        .filter(function(key) {
+            return keygen.grabNs(key) === namespace;
+        })
+        .reduce(function(map, key) {
+            var version = keygen.grabVer(key);
+            var versions = map[version] = (map[version] = []);
+            versions.push(key);
+            return map;
+        }, {
+            // 0.0.0: ['hi_0.0.0_foo']
+            // 1.0.0: ['hi_1.0.0_bar', 'hi_1.0.0_baz']
+        });
+};
+
+var gatherDeprecatedKeys = function(versionMap, latestVer) {
+    var versions = Object.keys(versionMap);
+
+    // if the last version is our version, then
+    // pop it off, we don't want to deprecate it
+    var lastVer = versions[versions.length - 1];
+    if (lastVer === latestVer) { versions.pop(); }
+
+    return versions.reduce(function(merged, mapKey) {
+        return merged.concat(versionMap[mapKey]);
+    }, []);
+};
+
+module.exports = function(storage, namespace, latestVer) {
+    /*
+        {
+            '1.0.0': { // from
+                '1.0.1': { // to
+                    'key': process
+                }
+            }
+        }
+    */
+    var migrations = {};
+
+    return {
+        /*
+           key:     string
+           from:    string (semver)
+           to:      string (semver)
+           process: function
+         */
+        add: function(config) {
+            var fromRef = migrations[config.from] = migrations[config.from] || {};
+            var toRef = fromRef[config.to] = fromRef[config.to] || {};
+            toRef[config.key] = config.process;
+        },
+
+        /**
+         * Run through the migrations, migrating up
+         * anything we can find (if there's not already
+         * a greater version with a value)
+         */
+        migrate: function() {
+            var migrationFromKeys = Object.keys(migrations)
+                .sort(version.compare);
+
+            migrationFromKeys.forEach(function(fromVersion) {
+                var migrationToKeys = Object.keys(migrations[fromVersion])
+                    .sort(version.compare);
+
+                migrationToKeys.forEach(function(toVersion) {
+                    var map = migrations[fromVersion][toVersion];
+                    Object.keys(map).forEach(function(key) {
+                        var process = map[key];
+                        var fromKey = keygen.encode(namespace, fromVersion, key);
+                        var toKey = keygen.encode(namespace, toVersion, key);
+
+                        // if there's a value already set in the "to" position,
+                        // don't overwrite it
+                        if (tryItem.get(storage, toKey) !== undefined) { return; }
+
+                        // run the migration
+                        var value = tryItem.get(storage, fromKey);
+                        tryItem.set(storage, toKey, process(value));
+                    });
+                });
+            });
+        },
+
+        /**
+         * Remove all old keys
+         */
+        deprecate: function() {
+            var versionMap = generateVersionMap(storage, namespace),
+                deprecatedKeys = gatherDeprecatedKeys(versionMap, latestVer);
+            deprecatedKeys.forEach(function(key) {
+                tryItem.remove(storage, key);
+            });
+        }
     };
 };
-},{}],5:[function(require,module,exports){
-var extend = require(3);
+},{"4":4,"7":7,"8":8}],6:[function(require,module,exports){
+var extend     = require(3);
 var expiration = require(2);
-var keygen = require(4);
-
-var serialize = function(value) {
-    return JSON.stringify(value);
-};
-
-var deserialize = function(value) {
-    return value === undefined || value === '' ? value : JSON.parse(value);
-};
+var keygen     = require(4);
+var tryItem    = require(7);
+var migrate    = require(5);
 
 /**
  * @param {Object} localStorage, sessionStorage
+ * @param {String} namespace
+ * @param {String} semver
  */
-module.exports = function storge(storage, namespace) {
-    var api;
+module.exports = function storge(storage, namespace, semver) {
     var expire = expiration(storage);
-    var gen = keygen(namespace);
+    var gen = keygen(namespace, semver);
+    var migration = migrate(storage, gen.space, gen.ver);
+
+    var api = function(name, semver) {
+        return storge(storage, name, semver);
+    };
 
     /**
-     * Clear all data from storage
-     * @return {Storage}
+     * Clear data from storage
      */
     var clear = function() {
-        try {
-            storage.clear();
-            return api;
-        } catch(e) {
-            api.err(e);
-        }
+        getKeys().forEach(function(key) {
+            tryItem.remove(storage, key);
+        });
+        return api;
+    };
+
+    /**
+     * Get keys from storage
+     * @return {Array[String]}
+     */
+    var getKeys = function() {
+        return tryItem.keys(storage)
+            .filter(gen.matches);
     };
 
     /**
      * Get a key at the specified index
-     * @param  {Number} idx
+     * @param  {Number} index
      * @return {String} key
      */
-    var getKey = function(idx) {
-        try {
-            return gen.esc(storage.key(idx));
-        } catch(e) {
-            api.err(e);
-        }
+    var getKey = function(index) {
+        var key = tryItem.key(index);
+        return key !== undefined ? gen.esc(key) : undefined;
     };
 
     /**
@@ -164,25 +315,18 @@ module.exports = function storge(storage, namespace) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryGetItem(gen.ns(arr[idx]));
+                arr[idx] = tryItem.get(storage, gen.enc(arr[idx]), api.err);
             }
             return arr;
         }
 
-        var genkey = gen.ns(key);
+        var genkey = gen.enc(key);
         if (expire.expired(genkey)) {
             removeItem(key);
             return undefined;
         }
 
-        return tryGetItem(genkey);
-    };
-    var tryGetItem = function(genkey) {
-        try {
-            return deserialize(storage.getItem(genkey));
-        } catch(e) {
-            api.err(e);
-        }
+        return tryItem.get(storage, genkey, api.err);
     };
 
     /**
@@ -202,7 +346,7 @@ module.exports = function storge(storage, namespace) {
             return api;
         }
 
-        var genkey = gen.ns(key);
+        var genkey = gen.enc(key);
 
         // Expiration
         if (opts) {
@@ -211,15 +355,8 @@ module.exports = function storge(storage, namespace) {
             }
         }
 
-        trySetItem(genkey, serialize(value));
-    };
-    var trySetItem = function(genkey, value) {
-        try {
-            storage.setItem(genkey, value);
-            return api;
-        } catch(e) {
-            api.err(e);
-        }
+        tryItem.set(storage, genkey, value, api.err);
+        return api;
     };
 
     /**
@@ -234,71 +371,194 @@ module.exports = function storge(storage, namespace) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryRemoveItem(gen.ns(arr[idx]));
+                arr[idx] = tryItem.remove(gen.enc(arr[idx]));
             }
             return arr;
         }
 
-        return tryRemoveItem(gen.ns(key));
-    };
-    var tryRemoveItem = function(genkey) {
-        try {
-            var stored = storage.removeItem(genkey);
-            return stored;
-        } catch(e) {
-            api.err(e);
-        }
+        return tryItem.remove(storage, gen.enc(key), api.err);
     };
 
-    return (
-        api = extend(function(name) {
-            return storge(storage, name);
-        }, {
-            clear:      clear,
-            key:        getKey,
-            getItem:    getItem,
-            setItem:    setItem,
-            removeItem: removeItem,
+    return extend(api, {
+        err: function() {},
 
-            err: function() {},
+        clear:      clear,
+        keys:       getKeys,
+        key:        getKey,
+        getItem:    getItem,
+        setItem:    setItem,
+        removeItem: removeItem,
 
-            /**
-             * Proxies
-             */
-            get: getItem,
-            set: setItem,
-            flush: clear,
+        /**
+         * Proxies
+         */
+        get: getItem,
+        set: setItem,
 
-            /**
-             * Remove an item from storage by key
-             * @param {String} key
-             * @returns {Storage}
-             */
-            remove: function(key) {
-                removeItem(key);
-                return api;
-            },
+        /**
+         * Dangerous, clears all of the
+         * storage, reguardless of namespace
+         * and versioning
+         */
+        flush: function() {
+            tryItem.clear();
+            return api;
+        },
 
-            /**
-             * Return storage values for JSON serialization
-             * @param  {String} [key] return a specific value
-             * @return {*}
-             */
-            toJSON: function(key) {
-                if (key !== undefined) {
-                    return getItem(key);
-                }
+        /**
+         * removeItem returns the removed item,
+         * this one chains
+         * @param {String} key
+         * @returns {Storage}
+         */
+        remove: function(key) {
+            removeItem(key);
+            return api;
+        },
 
-                // no key, retrieve everything
-                return Object.keys(storage)
-                    .reduce(function(memo, key) {
-                        var esckey = gen.esc(key);
-                        memo[esckey] = getItem(esckey);
-                        return memo;
-                    }, {});
+        /**
+         * Migration
+         */
+        migration: function(config) {
+            if (Array.isArray(config)) { config.forEach(migration.add); return api; }
+            migration.add(config);
+            return api;
+        },
+        migrate: function() {
+            if (!gen.active) { return api; }
+            migration.migrate();
+            return api;
+        },
+        deprecate: function() {
+            if (!gen.active) { return api; }
+            migration.deprecate();
+            return api;
+        },
+
+        /**
+         * Return storage values for JSON serialization
+         * @param  {String} [key] return a specific value
+         * @return {*|Object}
+         */
+        toJSON: function(key) {
+            if (key !== undefined) {
+                return getItem(key);
             }
-        })
-    );
+
+            // no key, retrieve everything
+            return getKeys().reduce(function(memo, key) {
+                memo[gen.esc(key)] = tryItem.get(storage, key);
+                return memo;
+            }, {});
+        },
+
+        /**
+         * Dangerous, back up all of
+         * storage, reguardless of namespace
+         * and versioning
+         */
+        backup: function() {
+            return tryItem.keys(storage).reduce(function(memo, key) {
+                memo[key] = tryItem.get(storage, key);
+                return memo;
+            }, {});
+        }
+    });
 };
-},{"2":2,"3":3,"4":4}]},{},[1])(1)
+},{"2":2,"3":3,"4":4,"5":5,"7":7}],7:[function(require,module,exports){
+var serialize = function(value) {
+    return JSON.stringify(value);
+};
+
+var deserialize = function(value) {
+    return value === undefined || value === '' ? value : JSON.parse(value);
+};
+
+module.exports = {
+    keys: function(storage) {
+        try {
+            return Object.keys(storage);
+        } catch(e) {
+            return [];
+        }
+    },
+
+    key: function(storage, index, err) {
+        try {
+            return storage.key(index);
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+
+    clear: function(storage, err) {
+        try {
+            storage.clear();
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+
+    get: function(storage, genkey, err) {
+        try {
+            return deserialize(storage.getItem(genkey));
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+
+    set: function(storage, genkey, value, err) {
+        try {
+            storage.setItem(genkey, serialize(value));
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+
+    remove: function(storage, genkey, err) {
+        try {
+            return storage.removeItem(genkey);
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+};
+},{}],8:[function(require,module,exports){
+var toNum = function(str) { return +str; };
+var isNum = function(num) { return (typeof num === 'number'); };
+
+module.exports = {
+    valid: function(v) {
+        var parts = v.split('.').map(toNum);
+        return parts.length === 3 && parts.every(isNum);
+    },
+
+    compare: function(v1, v2) {
+        var v1parts = v1.split('.').map(toNum),
+            v2parts = v2.split('.').map(toNum);
+
+        for (var idx = 0; idx < v1parts.length; idx++) {
+            if (v2parts.length === idx) {
+                return 1;
+            }
+
+            if (v1parts[idx] === v2parts[idx]) {
+                continue;
+            }
+
+            if (v1parts[idx] > v2parts[idx]) {
+                return 1;
+            }
+
+            return -1;
+        }
+
+        if (v1parts.length !== v2parts.length) {
+            return -1;
+        }
+
+        return 0;
+    }
+};
+},{}]},{},[1])(1)
 });
