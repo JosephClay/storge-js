@@ -1,8 +1,8 @@
-var extend = require('./extend');
+var extend     = require('./extend');
 var expiration = require('./expiration');
-var keygen = require('./keygen');
-var tryItem = require('./tryItem');
-var migrate = require('./migrate');
+var keygen     = require('./keygen');
+var tryItem    = require('./tryItem');
+var migrate    = require('./migrate');
 
 /**
  * @param {Object} localStorage, sessionStorage
