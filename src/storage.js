@@ -21,7 +21,7 @@ var tryGetItem = function(storage, genkey, err) {
 
 var trySetItem = function(storage, genkey, value, err) {
     try {
-        storage.setItem(genkey, value);
+        storage.setItem(genkey, serialize(value));
     } catch(e) {
         err(e);
     }
@@ -125,7 +125,7 @@ module.exports = function storge(storage, namespace, semver) {
             }
         }
 
-        trySetItem(storage, genkey, serialize(value), api.err);
+        trySetItem(storage, genkey, value, api.err);
         return api;
     };
 
