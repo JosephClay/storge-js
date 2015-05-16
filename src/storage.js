@@ -39,10 +39,10 @@ var tryRemoveItem = function(storage, genkey, err) {
 /**
  * @param {Object} localStorage, sessionStorage
  */
-module.exports = function storge(storage, namespace) {
+module.exports = function storge(storage, namespace, semver) {
     var api;
     var expire = expiration(storage);
-    var gen = keygen(namespace);
+    var gen = keygen(namespace, semver);
 
     /**
      * Clear all data from storage
