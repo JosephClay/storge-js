@@ -66,7 +66,7 @@ module.exports = extend(function(name, semver) {
         matches:   active ? matches : isNotEncoded
     };
 }, {
-    grabVersion: function(key) {
+    grabVer: function(key) {
         return key.split('_')[1];
     },
     grabNs: function(key) {
