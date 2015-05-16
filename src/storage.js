@@ -168,7 +168,8 @@ module.exports = function storge(storage, namespace) {
             flush: clear,
 
             /**
-             * Remove an item from storage by key
+             * removeItem returns the removed item,
+             * this one chains
              * @param {String} key
              * @returns {Storage}
              */
