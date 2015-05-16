@@ -1,3 +1,4 @@
+var extend = require('./extend');
 var version = require('./version');
 
 var exists = function(param) {
@@ -36,7 +37,7 @@ var isNotEncoded = function(key) {
     return !version.valid(ver);
 };
 
-module.exports = function(name, semver) {
+module.exports = extend(function(name, semver) {
     var space    = createKey(name, semver),
         ver      = createSemver(name, semver),
         active   = exists(space) || exists(ver),
@@ -64,14 +65,14 @@ module.exports = function(name, semver) {
 
         matches:   active ? matches : isNotEncoded
     };
-};
-
-module.exports.grabVersion = function(key) {
-    return key.split('_')[1];
-};
-module.exports.grabNs = function(key) {
-    return key.split('_')[0];
-};
-module.exports.enc = function(space, ver, key) {
-    return space + ver + key;
-};
+}, {
+    grabVersion: function(key) {
+        return key.split('_')[1];
+    },
+    grabNs: function(key) {
+        return key.split('_')[0];
+    },
+    enc: function(space, ver, key) {
+        return space + ver + key;
+    }
+});
