@@ -23,7 +23,6 @@ return {
         }
     },
 
-
     remove: function(storage, genkey, err) {
         try {
             return storage.removeItem(genkey);
