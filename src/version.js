@@ -11,18 +11,20 @@ module.exports = {
         var v1parts = v1.split('.').map(toNum),
             v2parts = v2.split('.').map(toNum);
 
-        for (var idx = 0; idx < v1parts.length; ++idx) {
+        for (var idx = 0; idx < v1parts.length; idx++) {
             if (v2parts.length === idx) {
                 return 1;
             }
 
             if (v1parts[idx] === v2parts[idx]) {
                 continue;
-            } else if (v1parts[idx] > v2parts[idx]) {
-                return 1;
-            } else {
-                return -1;
             }
+
+            if (v1parts[idx] > v2parts[idx]) {
+                return 1;
+            }
+
+            return -1;
         }
 
         if (v1parts.length !== v2parts.length) {
