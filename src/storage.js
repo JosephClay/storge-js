@@ -1,40 +1,7 @@
 var extend = require('./extend');
 var expiration = require('./expiration');
 var keygen = require('./keygen');
-var keygen = require('./keygen');
-
-var serialize = function(value) {
-    return JSON.stringify(value);
-};
-
-var deserialize = function(value) {
-    return value === undefined || value === '' ? value : JSON.parse(value);
-};
-
-var tryGetItem = function(storage, genkey, err) {
-    try {
-        return deserialize(storage.getItem(genkey));
-    } catch(e) {
-        err(e);
-    }
-};
-
-var trySetItem = function(storage, genkey, value, err) {
-    try {
-        storage.setItem(genkey, serialize(value));
-    } catch(e) {
-        err(e);
-    }
-};
-
-
-var tryRemoveItem = function(storage, genkey, err) {
-    try {
-        return storage.removeItem(genkey);
-    } catch(e) {
-        err(e);
-    }
-};
+var tryItem = require('./tryItem');
 
 /**
  * @param {Object} localStorage, sessionStorage
@@ -87,7 +54,7 @@ module.exports = function storge(storage, namespace, semver) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryGetItem(storage, gen.ns(arr[idx]), api.err);
+                arr[idx] = tryItem.get(storage, gen.ns(arr[idx]), api.err);
             }
             return arr;
         }
@@ -98,7 +65,7 @@ module.exports = function storge(storage, namespace, semver) {
             return undefined;
         }
 
-        return tryGetItem(storage, genkey, api.err);
+        return tryItem.get(storage, genkey, api.err);
     };
 
     /**
@@ -127,7 +94,7 @@ module.exports = function storge(storage, namespace, semver) {
             }
         }
 
-        trySetItem(storage, genkey, value, api.err);
+        tryItem.set(storage, genkey, value, api.err);
         return api;
     };
 
@@ -143,22 +110,22 @@ module.exports = function storge(storage, namespace, semver) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryRemoveItem(gen.ns(arr[idx]));
+                arr[idx] = tryItem.remove(gen.ns(arr[idx]));
             }
             return arr;
         }
 
-        return tryRemoveItem(storage, gen.ns(key), api.err);
+        return tryItem.remove(storage, gen.ns(key), api.err);
     };
 
     return extend(api, {
+        err: function() {},
+
         clear:      clear,
         key:        getKey,
         getItem:    getItem,
         setItem:    setItem,
         removeItem: removeItem,
-
-        err: function() {},
 
         /**
          * Proxies
