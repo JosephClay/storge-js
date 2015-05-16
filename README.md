@@ -13,8 +13,6 @@ var store = require('storge-js');
 // can use set or setItem, get or getItem
 store.set('foo', 1);
 store.get('foo'); // 1
-
-// flush
 store.clear();
 store.get('foo'); // undefined
 ```
@@ -76,7 +74,7 @@ To migrate, simply call `.migrate()` on the store.
 To delete deprecated versions, call `.deprecate()`. This is recommended to
 prevent hitting the storage cap of ~5MB.
 
-##Nice to haves
+##Nice Toys
 No need to `JSON.stringify` or `JSON.parse` your values, storge-js does it for you
 ```js
 store.set('foo', { bar: 1 });
@@ -94,9 +92,10 @@ store.get(['foo', 'bar']); // [1, 2]
 store.remove(['foo', 'bar']);
 ```
 
-Async methods: `getAsync`, `setAsync`, `removeAsync`, `clearAsync`, `keyAsync`, `keysAsync`.
+Async methods: `getAsync`, `setAsync`, `removeAsync`, `clearAsync`, `keyAsync`, `keysAsync`
+using native `Promise`.
 
-##Dangerous methods
+##Danger Zone
 `.flush()` will wipe the entire store, regardless of namespace and versioning.
 `.backup()` will create an object of all key-value pairs in the store without
 escaping store-specific keys.
