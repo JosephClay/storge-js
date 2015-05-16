@@ -1,4 +1,4 @@
-/*! storge-js - v2.0.0 - 2015-05-16 %>
+/*! storge-js - v2.0.2 - 2015-05-16 %>
  * https://github.com/JosephClay/storge-js
  * Copyright (c) 2013-2015 ; License: MIT */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.storge = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -265,7 +265,7 @@ var migrate    = require(5);
  * @param {String} namespace
  * @param {String} semver
  */
-var storge = module.exports = function storge(storage, namespace, semver) {
+var storge = module.exports = function(storage, namespace, semver) {
     var expire = expiration(storage);
     var gen = keygen(namespace, semver);
     var migration = migrate(storage, gen.space, gen.ver);
