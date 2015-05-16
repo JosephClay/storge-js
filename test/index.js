@@ -1,5 +1,6 @@
-var test = require('tape'),
-    keygen = require('../src/keygen'),
+var _       = require('lodash'),
+    test    = require('tape'),
+    keygen  = require('../src/keygen'),
     version = require('../src/version');
 
 // ======================
@@ -46,6 +47,7 @@ test('named and versioned keygen', function(assert) {
 // ======================
 // Version
 // ======================
+
 test('version validity', function(assert) {
     assert.equal(version.valid(''), false, 'empty string is invalid');
 
@@ -56,6 +58,24 @@ test('version validity', function(assert) {
 
     assert.equal(version.valid('0.0.0'), true, 'small version is valid');
     assert.equal(version.valid('12.123456.9789746'), true, 'large version is valid');
+
+    assert.end();
+});
+
+test('version sort', function(assert) {
+    var expected = [
+        '0.0.0',
+        '0.0.1',
+        '0.0.2',
+        '0.2.0',
+        '0.2.1',
+        '3.0.0',
+        '12345.1646846.464643640',
+        '12345.1646846.464643641'
+    ];
+    var sorted = _.shuffle(expected).sort(version.compare);
+
+    assert.deepEqual(expected, sorted, 'sorted from lowest to highest');
 
     assert.end();
 });
