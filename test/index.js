@@ -47,6 +47,8 @@ test('named and versioned keygen', function(assert) {
 // Version
 // ======================
 test('version validity', function(assert) {
+    assert.equal(version.valid(''), false, 'empty string is invalid');
+
     assert.equal(version.valid('1.0.0'), true, '1.0.0 is valid');
 
     assert.equal(version.valid('0.0'), false, 'short version is invalid');

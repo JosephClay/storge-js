@@ -26,6 +26,10 @@ var createSemver = function(name, semver) {
 
 var constant = function(key) { return key; };
 
+var grabVersion = function(key) {
+    return key.split('_')[1];
+};
+
 module.exports = function(name, semver) {
     var space    = createKey(name, semver),
         ver      = createSemver(name, semver),
@@ -61,9 +65,21 @@ module.exports = function(name, semver) {
 
     return {
         active:    active,
+        space:     space,
+        ver:       ver,
+
         ns:        active ? encode  : constant,
         esc:       active ? decode  : constant,
+
         matches:   active ? matches : isNotEncoded,
-        matchesNs: active ? matchesNs : function() { return false; }
+        matchesNs: active ? matchesNs : function() { return false; },
     };
+};
+
+module.exports.grabVersion = grabVersion;
+module.exports.grabNs = function(key) {
+    return key.split('_')[0];
+};
+module.exports.encode = function(space, ver, key) {
+    return space + ver + key;
 };

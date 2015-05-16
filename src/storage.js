@@ -2,6 +2,7 @@ var extend = require('./extend');
 var expiration = require('./expiration');
 var keygen = require('./keygen');
 var tryItem = require('./tryItem');
+var migrate = require('./migrate');
 
 /**
  * @param {Object} localStorage, sessionStorage
@@ -11,6 +12,7 @@ var tryItem = require('./tryItem');
 module.exports = function storge(storage, namespace, semver) {
     var expire = expiration(storage);
     var gen = keygen(namespace, semver);
+    var migration = migrate(storage, gen.space, gen.ver);
     var api = function(name, semver) {
         return storge(storage, name, semver);
     };
@@ -142,6 +144,25 @@ module.exports = function storge(storage, namespace, semver) {
          */
         remove: function(key) {
             removeItem(key);
+            return api;
+        },
+
+        /**
+         * Migration
+         */
+        migration: function(config) {
+            if (Array.isArray(config)) { config.forEach(migration.add); return api; }
+            migration.add(config);
+            return api;
+        },
+        migrate: function() {
+            if (!gen.active) { return api; }
+            migration.migrate();
+            return api;
+        },
+        deprecate: function() {
+            if (!gen.active) { return api; }
+            migration.deprecate();
             return api;
         },
 
