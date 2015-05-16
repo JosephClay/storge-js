@@ -143,8 +143,8 @@ module.exports = function storge(storage, namespace) {
     };
 
     return (
-        api = extend(function(name) {
-            return storge(storage, name);
+        api = extend(function(name, semver) {
+            return storge(storage, name, semver);
         }, {
             clear:      clear,
             key:        getKey,
