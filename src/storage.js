@@ -30,8 +30,7 @@ var trySetItem = function(storage, genkey, value, err) {
 
 var tryRemoveItem = function(storage, genkey, err) {
     try {
-        var stored = storage.removeItem(genkey);
-        return stored;
+        return storage.removeItem(genkey);
     } catch(e) {
         err(e);
     }
