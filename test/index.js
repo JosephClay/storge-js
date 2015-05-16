@@ -1,5 +1,10 @@
 var test = require('tape'),
-    keygen = require('../src/keygen');
+    keygen = require('../src/keygen'),
+    version = require('../src/version');
+
+// ======================
+// Keygen
+// ======================
 
 test('blank keygen', function(assert) {
     var gen = keygen();
@@ -33,6 +38,22 @@ test('named and versioned keygen', function(assert) {
     assert.equal(gen.active, true, 'keygen is active');
     assert.equal(gen.ns('foo'), 'hi_1.0.0_foo', 'keygen escapes with namespace');
     assert.equal(gen.esc('hi_1.0.0_foo'), 'foo', 'keygen escapes back to original key');
+
+    assert.end();
+});
+
+
+// ======================
+// Version
+// ======================
+test('version validity', function(assert) {
+    assert.equal(version.valid('1.0.0'), true, '1.0.0 is valid');
+
+    assert.equal(version.valid('0.0'), false, 'short version is invalid');
+    assert.equal(version.valid('1.0.0.1'), false, 'long version is invalid');
+
+    assert.equal(version.valid('0.0.0'), true, 'small version is valid');
+    assert.equal(version.valid('12.123456.9789746'), true, 'large version is valid');
 
     assert.end();
 });
