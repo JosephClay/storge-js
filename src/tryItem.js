@@ -6,7 +6,7 @@ var deserialize = function(value) {
     return value === undefined || value === '' ? value : JSON.parse(value);
 };
 
-return {
+module.exports = {
     keys: function(storage) {
         try {
             return Object.keys(storage);
