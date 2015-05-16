@@ -18,7 +18,7 @@ var createSemver = function(name, semver) {
     }
 
     if (!version.valid(semver)) {
-        throw ('valid semver not provided: ' + semver);
+        throw ('invalid semver provided: ' + semver);
     }
 
     return semver + '_';
