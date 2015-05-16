@@ -194,6 +194,18 @@ module.exports = function storge(storage, namespace, semver) {
                 memo[gen.esc(key)] = tryItem.get(storage, key);
                 return memo;
             }, {});
+        },
+
+        /**
+         * Dangerous, back up all of
+         * storage, reguardless of namespace
+         * and versioning
+         */
+        backup: function() {
+            return tryItem.keys().reduce(function(memo, key) {
+                memo[key] = tryItem.get(storage, key);
+                return memo;
+            }, {});
         }
     });
 };
