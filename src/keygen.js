@@ -34,8 +34,7 @@ module.exports = function(name, semver) {
     var space    = createKey(name, semver),
         ver      = createSemver(name, semver),
         active   = exists(space) || exists(ver),
-        rMatches = new RegExp('^' + space + ver),
-        rMatchesNs = new RegExp('^' + space);
+        rMatches = new RegExp('^' + space + ver);
 
     var encode = function(key) {
         return space + ver + key;
@@ -59,20 +58,15 @@ module.exports = function(name, semver) {
         return !version.valid(ver);
     };
 
-    var matchesNs = function(key) {
-        return rMatchesNs.test(key);
-    };
-
     return {
         active:    active,
         space:     space,
         ver:       ver,
 
-        enc:        active ? encode  : constant,
+        enc:       active ? encode  : constant,
         esc:       active ? decode  : constant,
 
-        matches:   active ? matches : isNotEncoded,
-        matchesNs: active ? matchesNs : function() { return false; },
+        matches:   active ? matches : isNotEncoded
     };
 };
 
