@@ -127,6 +127,7 @@ module.exports = function storge(storage, namespace, semver) {
         err: function() {},
 
         clear:      clear,
+        keys:       getKeys,
         key:        getKey,
         getItem:    getItem,
         setItem:    setItem,
