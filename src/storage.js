@@ -9,7 +9,7 @@ var migrate    = require('./migrate');
  * @param {String} namespace
  * @param {String} semver
  */
-var storge = module.exports = function storge(storage, namespace, semver) {
+var storge = module.exports = function(storage, namespace, semver) {
     var expire = expiration(storage);
     var gen = keygen(namespace, semver);
     var migration = migrate(storage, gen.space, gen.ver);
