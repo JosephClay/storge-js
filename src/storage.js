@@ -182,21 +182,18 @@ module.exports = function storge(storage, namespace, semver) {
         /**
          * Return storage values for JSON serialization
          * @param  {String} [key] return a specific value
-         * @return {*}
+         * @return {*|Object}
          */
-        // TODO: Better toJSON with keygen
         toJSON: function(key) {
             if (key !== undefined) {
                 return getItem(key);
             }
 
             // no key, retrieve everything
-            return tryItem.keys(storage)
-                .reduce(function(memo, key) {
-                    var esckey = gen.esc(key);
-                    memo[esckey] = getItem(esckey);
-                    return memo;
-                }, {});
+            return getKeys().reduce(function(memo, key) {
+                memo[gen.esc(key)] = tryItem.get(storage, key);
+                return memo;
+            }, {});
         }
     });
 };
