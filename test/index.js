@@ -13,8 +13,8 @@ test('blank keygen', function(assert) {
 test('named keygen', function(assert) {
     var gen = keygen('hi');
     assert.equal(gen.active, true, 'keygen is active');
-    assert.equal(gen.ns('foo'), 'hi__foo', 'keygen escapes with namespace');
-    assert.equal(gen.esc('hi__foo'), 'foo', 'keygen escapes back to original key');
+    assert.equal(gen.ns('foo'), 'hi_000_foo', 'keygen escapes with namespace');
+    assert.equal(gen.esc('hi_000_foo'), 'foo', 'keygen escapes back to original key');
 
     assert.end();
 });
