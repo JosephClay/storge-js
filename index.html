@@ -40,23 +40,23 @@
                 $('#set').addEventListener('click', function() {
                     var key = prompt('key')
                     var value = prompt('value');
-                    console.log('set', store().set(key, value));
+                    store().set(key, value);
                 });
                 $('#get').addEventListener('click', function() {
                     var key = prompt('key')
-                    console.log('get', store().get(key));
+                    console.log('get:', store().get(key));
                 });
                 $('#clear').addEventListener('click', function() {
-                    console.log('clear', store().clear());
+                    console.log('clear:', store().clear());
                 });
                 $('#tojson').addEventListener('click', function() {
-                    console.log('toJSON', store().toJSON());
+                    console.log('toJSON:', store().toJSON());
                 });
                 $('#flush').addEventListener('click', function() {
                     storge.flush();
                 });
                 $('#backup').addEventListener('click', function() {
-                    storge.backup();
+                    console.log('backup:', storge.backup());
                 });
             }());
         </script>
