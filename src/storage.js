@@ -48,6 +48,7 @@ module.exports = function storge(storage, namespace) {
      * Clear all data from storage
      * @return {Storage}
      */
+    // TODO: Better clear with keygen
     var clear = function() {
         try {
             storage.clear();
