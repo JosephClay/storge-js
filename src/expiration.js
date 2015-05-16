@@ -2,7 +2,7 @@ var tryItem = require('./tryItem');
 var KEY = '__STORGE__';
 
 var truncateExpirations = function(storage, expirations) {
-    var keysInStorage = Object.keys(storage);
+    var keysInStorage = tryItem.keys(storage);
     for (var key in expirations) {
         if (keysInStorage.indexOf(key) === -1) {
             delete expirations[key];

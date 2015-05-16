@@ -3,7 +3,7 @@ var keygen = require('./keygen');
 var tryItem = require('./tryItem');
 
 var generateVersionMap = function(storage, namespace) {
-    return Object.keys(storage)
+    return tryItem.keys(storage)
         .filter(function(key) {
             return keygen.grabNs(key) === namespace;
         })
@@ -18,20 +18,20 @@ var generateVersionMap = function(storage, namespace) {
         });
 };
 
-var gatherDeprecatedKeys = function(versionMap, latestSemver) {
-    var semvers = Object.keys(versionMap);
+var gatherDeprecatedKeys = function(versionMap, latestVer) {
+    var versions = Object.keys(versionMap);
 
     // if the last version is our version, then
     // pop it off, we don't want to deprecate it
-    var lastSemver = semvers[semvers.length - 1];
-    if (lastSemver === latestSemver) { semvers.pop(); }
+    var lastVer = versions[versions.length - 1];
+    if (lastVer === latestVer) { versions.pop(); }
 
-    return semvers.reduce(function(merged, mapKey) {
+    return versions.reduce(function(merged, mapKey) {
         return merged.concat(versionMap[mapKey]);
     }, []);
 };
 
-module.exports = function(storage, namespace, latestSemver) {
+module.exports = function(storage, namespace, latestVer) {
     /*
         {
             '1.0.0': { // from
@@ -93,7 +93,7 @@ module.exports = function(storage, namespace, latestSemver) {
          */
         deprecate: function() {
             var versionMap = generateVersionMap(storage, namespace),
-                deprecatedKeys = gatherDeprecatedKeys(versionMap, latestSemver);
+                deprecatedKeys = gatherDeprecatedKeys(versionMap, latestVer);
             deprecatedKeys.forEach(function(key) {
                 tryItem.remove(storage, key);
             });

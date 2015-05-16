@@ -7,6 +7,14 @@ var deserialize = function(value) {
 };
 
 return {
+    keys: function(storage) {
+        try {
+            return Object.keys(storage);
+        } catch(e) {
+            return [];
+        }
+    },
+
     get: function(storage, genkey, err) {
         try {
             return deserialize(storage.getItem(genkey));

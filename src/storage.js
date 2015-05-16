@@ -178,7 +178,7 @@ module.exports = function storge(storage, namespace, semver) {
             }
 
             // no key, retrieve everything
-            return Object.keys(storage)
+            return tryItem.keys(storage)
                 .reduce(function(memo, key) {
                     var esckey = gen.esc(key);
                     memo[esckey] = getItem(esckey);
