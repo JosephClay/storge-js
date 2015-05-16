@@ -4,7 +4,9 @@
   "description": "local and session storage wrapper",
   "main": "./src/index.js",
   "scripts": {
-    "test": "node ./test/index.js | tap-dot"
+    "test": "node ./test/index.js | tap-dot",
+    "release": "npm install && gulp release",
+    "browser": "http-server ./ -o -s -p 8080"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
     "gulp-gzip": "^1.1.0",
     "gulp-header": "^1.2.2",
     "gulp-uglify": "^1.2.0",
+    "http-server": "^0.8.0",
     "lodash": "^3.8.0",
     "moment": "^2.10.2",
     "tap-dot": "^1.0.0",
