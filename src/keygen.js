@@ -46,12 +46,12 @@ module.exports = function(name, semver) {
     };
 
     var isNotEncoded = function(key) {
-        // doesn't have enough keys to be encoded
         var keys = key.split('_');
+        // doesn't have enough keys to be encoded
         if (keys.length < 3) { return true; }
 
-        // has a semantic version
         var ver = keys[1];
+        // not a semantic version = not encoded
         return !version.valid(ver);
     };
 
