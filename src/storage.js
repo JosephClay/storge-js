@@ -13,6 +13,7 @@ module.exports = function storge(storage, namespace, semver) {
     var expire = expiration(storage);
     var gen = keygen(namespace, semver);
     var migration = migrate(storage, gen.space, gen.ver);
+
     var api = function(name, semver) {
         return storge(storage, name, semver);
     };
@@ -33,15 +34,12 @@ module.exports = function storge(storage, namespace, semver) {
 
     /**
      * Get a key at the specified index
-     * @param  {Number} idx
+     * @param  {Number} index
      * @return {String} key
      */
-    var getKey = function(idx) {
-        try {
-            return gen.esc(storage.key(idx));
-        } catch(e) {
-            api.err(e);
-        }
+    var getKey = function(index) {
+        var key = tryItem.key(index);
+        return key !== undefined ? gen.esc(key) : undefined;
     };
 
     /**

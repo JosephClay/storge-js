@@ -15,6 +15,14 @@ return {
         }
     },
 
+    key: function(storage, index, err) {
+        try {
+            return storage.key(index);
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+
     get: function(storage, genkey, err) {
         try {
             return deserialize(storage.getItem(genkey));
