@@ -97,6 +97,9 @@ module.exports = function storge(storage, namespace, semver) {
             if (opts.ttl !== undefined) {
                 expire.set(genkey, opts.ttl);
             }
+            if (typeof opts === 'number') {
+                expire.set(genkey, opts);
+            }
         }
 
         tryItem.set(storage, genkey, value, api.err);
