@@ -42,9 +42,11 @@ var tryRemoveItem = function(storage, genkey, err) {
  * @param {String} semver
  */
 module.exports = function storge(storage, namespace, semver) {
-    var api;
     var expire = expiration(storage);
     var gen = keygen(namespace, semver);
+    var api = function(name, semver) {
+        return storge(storage, name, semver);
+    };
 
     /**
      * Clear all data from storage
@@ -149,55 +151,51 @@ module.exports = function storge(storage, namespace, semver) {
         return tryRemoveItem(storage, gen.ns(key), api.err);
     };
 
-    return (
-        api = extend(function(name, semver) {
-            return storge(storage, name, semver);
-        }, {
-            clear:      clear,
-            key:        getKey,
-            getItem:    getItem,
-            setItem:    setItem,
-            removeItem: removeItem,
+    return extend(api, {
+        clear:      clear,
+        key:        getKey,
+        getItem:    getItem,
+        setItem:    setItem,
+        removeItem: removeItem,
 
-            err: function() {},
+        err: function() {},
 
-            /**
-             * Proxies
-             */
-            get: getItem,
-            set: setItem,
-            flush: clear,
+        /**
+         * Proxies
+         */
+        get: getItem,
+        set: setItem,
+        flush: clear,
 
-            /**
-             * removeItem returns the removed item,
-             * this one chains
-             * @param {String} key
-             * @returns {Storage}
-             */
-            remove: function(key) {
-                removeItem(key);
-                return api;
-            },
+        /**
+         * removeItem returns the removed item,
+         * this one chains
+         * @param {String} key
+         * @returns {Storage}
+         */
+        remove: function(key) {
+            removeItem(key);
+            return api;
+        },
 
-            /**
-             * Return storage values for JSON serialization
-             * @param  {String} [key] return a specific value
-             * @return {*}
-             */
-            // TODO: Better toJSON with keygen
-            toJSON: function(key) {
-                if (key !== undefined) {
-                    return getItem(key);
-                }
-
-                // no key, retrieve everything
-                return Object.keys(storage)
-                    .reduce(function(memo, key) {
-                        var esckey = gen.esc(key);
-                        memo[esckey] = getItem(esckey);
-                        return memo;
-                    }, {});
+        /**
+         * Return storage values for JSON serialization
+         * @param  {String} [key] return a specific value
+         * @return {*}
+         */
+        // TODO: Better toJSON with keygen
+        toJSON: function(key) {
+            if (key !== undefined) {
+                return getItem(key);
             }
-        })
-    );
+
+            // no key, retrieve everything
+            return Object.keys(storage)
+                .reduce(function(memo, key) {
+                    var esckey = gen.esc(key);
+                    memo[esckey] = getItem(esckey);
+                    return memo;
+                }, {});
+        }
+    });
 };
