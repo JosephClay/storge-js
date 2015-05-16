@@ -38,6 +38,8 @@ var tryRemoveItem = function(storage, genkey, err) {
 
 /**
  * @param {Object} localStorage, sessionStorage
+ * @param {String} namespace
+ * @param {String} semver
  */
 module.exports = function storge(storage, namespace, semver) {
     var api;
