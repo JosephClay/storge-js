@@ -23,6 +23,14 @@ return {
         }
     },
 
+    clear: function(storage, err) {
+        try {
+            storage.clear();
+        } catch(e) {
+            if (err) { err(e); }
+        }
+    },
+
     get: function(storage, genkey, err) {
         try {
             return deserialize(storage.getItem(genkey));
