@@ -1,3 +1,5 @@
+var version = require('./version');
+
 var exists = function(param) {
     return param !== undefined && param !== '';
 };
@@ -13,6 +15,10 @@ var createKey = function(name, semver) {
 var createSemver = function(name, semver) {
     if (!exists(semver)) {
         return exists(name) ? '0.0.0_' : '';
+    }
+
+    if (!version.valid(semver)) {
+        throw ('valid semver not provided: ' + semver);
     }
 
     return semver + '_';
@@ -46,7 +52,7 @@ module.exports = function(name, semver) {
 
         // has a semantic version
         var ver = keys[1];
-        return !version.isSemver(ver);
+        return !version.valid(ver);
     };
 
     var matchesNs = function(key) {
