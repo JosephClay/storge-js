@@ -71,8 +71,10 @@ store.migration({
     }
 });
 ```
-To migrate, simply call `.migrate()` on the store. To delete deprecated
-versions, call `.deprecate()`.
+To migrate, simply call `.migrate()` on the store.
+
+To delete deprecated versions, call `.deprecate()`. This is recommended to
+prevent hitting the storage cap of ~5MB.
 
 ##Nice to haves
 No need to `JSON.stringify` or `JSON.parse` your values, storge-js does it for you
