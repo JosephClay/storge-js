@@ -13,8 +13,8 @@ test('blank keygen', function(assert) {
 test('named keygen', function(assert) {
     var gen = keygen('hi');
     assert.equal(gen.active, true, 'keygen is active');
-    assert.equal(gen.ns('foo'), 'hi_000_foo', 'keygen escapes with namespace');
-    assert.equal(gen.esc('hi_000_foo'), 'foo', 'keygen escapes back to original key');
+    assert.equal(gen.ns('foo'), 'hi_0.0.0_foo', 'keygen escapes with namespace');
+    assert.equal(gen.esc('hi_0.0.0_foo'), 'foo', 'keygen escapes back to original key');
 
     assert.end();
 });
@@ -22,8 +22,8 @@ test('named keygen', function(assert) {
 test('versioned keygen', function(assert) {
     var gen = keygen('', '1.0.0');
     assert.equal(gen.active, true, 'keygen is active');
-    assert.equal(gen.ns('foo'), '_100_foo', 'keygen escapes with version');
-    assert.equal(gen.esc('_100_foo'), 'foo', 'keygen escapes back to original key');
+    assert.equal(gen.ns('foo'), '_1.0.0_foo', 'keygen escapes with version');
+    assert.equal(gen.esc('_1.0.0_foo'), 'foo', 'keygen escapes back to original key');
 
     assert.end();
 });
@@ -31,8 +31,8 @@ test('versioned keygen', function(assert) {
 test('named and versioned keygen', function(assert) {
     var gen = keygen('hi', '1.0.0');
     assert.equal(gen.active, true, 'keygen is active');
-    assert.equal(gen.ns('foo'), 'hi_100_foo', 'keygen escapes with namespace');
-    assert.equal(gen.esc('hi_100_foo'), 'foo', 'keygen escapes back to original key');
+    assert.equal(gen.ns('foo'), 'hi_1.0.0_foo', 'keygen escapes with namespace');
+    assert.equal(gen.esc('hi_1.0.0_foo'), 'foo', 'keygen escapes back to original key');
 
     assert.end();
 });

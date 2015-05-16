@@ -12,10 +12,10 @@ var createKey = function(name, semver) {
 
 var createSemver = function(name, semver) {
     if (!exists(semver)) {
-        return exists(name) ? '000_' : '';
+        return exists(name) ? '0.0.0_' : '';
     }
 
-    return semver.replace(/\./g, '') + '_';
+    return semver + '_';
 };
 
 var constant = function(key) { return key; };
@@ -24,7 +24,8 @@ module.exports = function(name, semver) {
     var space    = createKey(name, semver),
         ver      = createSemver(name, semver),
         active   = exists(space) || exists(ver),
-        rMatches = new RegExp('^' + space + ver);
+        rMatches = new RegExp('^' + space + ver),
+        rMatchesNs = new RegExp('^' + space);
 
     var encode = function(key) {
         return space + ver + key;
@@ -43,15 +44,20 @@ module.exports = function(name, semver) {
         var keys = key.split('_');
         if (keys.length < 3) { return true; }
 
-        // has a numeric version
+        // has a semantic version
         var ver = keys[1];
-        return isNaN(+ver) ? true : false;
+        return !version.isSemver(ver);
+    };
+
+    var matchesNs = function(key) {
+        return rMatchesNs.test(key);
     };
 
     return {
-        active:  active,
-        ns:      active ? encode  : constant,
-        esc:     active ? decode  : constant,
-        matches: active ? matches : isNotEncoded
+        active:    active,
+        ns:        active ? encode  : constant,
+        esc:       active ? decode  : constant,
+        matches:   active ? matches : isNotEncoded,
+        matchesNs: active ? matchesNs : function() { return false; }
     };
 };
