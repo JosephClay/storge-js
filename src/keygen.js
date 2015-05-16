@@ -1,4 +1,4 @@
-var extend = require('./extend');
+var extend  = require('./extend');
 var version = require('./version');
 
 var exists = function(param) {
