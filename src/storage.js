@@ -10,6 +10,32 @@ var deserialize = function(value) {
     return value === undefined || value === '' ? value : JSON.parse(value);
 };
 
+var tryGetItem = function(storage, genkey, err) {
+    try {
+        return deserialize(storage.getItem(genkey));
+    } catch(e) {
+        err(e);
+    }
+};
+
+var trySetItem = function(storage, genkey, value, err) {
+    try {
+        storage.setItem(genkey, value);
+    } catch(e) {
+        err(e);
+    }
+};
+
+
+var tryRemoveItem = function(storage, genkey, err) {
+    try {
+        var stored = storage.removeItem(genkey);
+        return stored;
+    } catch(e) {
+        err(e);
+    }
+};
+
 /**
  * @param {Object} localStorage, sessionStorage
  */
@@ -56,7 +82,7 @@ module.exports = function storge(storage, namespace) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryGetItem(gen.ns(arr[idx]));
+                arr[idx] = tryGetItem(storage, gen.ns(arr[idx]), api.err);
             }
             return arr;
         }
@@ -67,14 +93,7 @@ module.exports = function storge(storage, namespace) {
             return undefined;
         }
 
-        return tryGetItem(genkey);
-    };
-    var tryGetItem = function(genkey) {
-        try {
-            return deserialize(storage.getItem(genkey));
-        } catch(e) {
-            api.err(e);
-        }
+        return tryGetItem(storage, genkey, api.err);
     };
 
     /**
@@ -103,15 +122,8 @@ module.exports = function storge(storage, namespace) {
             }
         }
 
-        trySetItem(genkey, serialize(value));
-    };
-    var trySetItem = function(genkey, value) {
-        try {
-            storage.setItem(genkey, value);
-            return api;
-        } catch(e) {
-            api.err(e);
-        }
+        trySetItem(storage, genkey, serialize(value), api.err);
+        return api;
     };
 
     /**
@@ -131,15 +143,7 @@ module.exports = function storge(storage, namespace) {
             return arr;
         }
 
-        return tryRemoveItem(gen.ns(key));
-    };
-    var tryRemoveItem = function(genkey) {
-        try {
-            var stored = storage.removeItem(genkey);
-            return stored;
-        } catch(e) {
-            api.err(e);
-        }
+        return tryRemoveItem(storage, gen.ns(key), api.err);
     };
 
     return (
