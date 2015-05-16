@@ -19,17 +19,22 @@ module.exports = function storge(storage, namespace, semver) {
     };
 
     /**
-     * Clear all data from storage
-     * @return {Storage}
+     * Clear data from storage
      */
-    // TODO: Better clear with keygen
     var clear = function() {
-        try {
-            storage.clear();
-            return api;
-        } catch(e) {
-            api.err(e);
-        }
+        getKeys().forEach(function(key) {
+            tryItem.remove(storage, key);
+        });
+        return api;
+    };
+
+    /**
+     * Get keys from storage
+     * @return {Array[String]}
+     */
+    var getKeys = function() {
+        return tryItem.keys(storage)
+            .filter(gen.matches);
     };
 
     /**
@@ -132,7 +137,16 @@ module.exports = function storge(storage, namespace, semver) {
          */
         get: getItem,
         set: setItem,
-        flush: clear,
+
+        /**
+         * Dangerous, clears all of the
+         * storage, reguardless of namespace
+         * and versioning
+         */
+        flush: function() {
+            tryItem.clear();
+            return api;
+        },
 
         /**
          * removeItem returns the removed item,
