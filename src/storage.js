@@ -202,7 +202,7 @@ module.exports = function storge(storage, namespace, semver) {
          * and versioning
          */
         backup: function() {
-            return tryItem.keys().reduce(function(memo, key) {
+            return tryItem.keys(storage).reduce(function(memo, key) {
                 memo[key] = tryItem.get(storage, key);
                 return memo;
             }, {});
