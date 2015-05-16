@@ -68,7 +68,7 @@ module.exports = function(name, semver) {
         space:     space,
         ver:       ver,
 
-        ns:        active ? encode  : constant,
+        enc:        active ? encode  : constant,
         esc:       active ? decode  : constant,
 
         matches:   active ? matches : isNotEncoded,
@@ -80,6 +80,6 @@ module.exports.grabVersion = grabVersion;
 module.exports.grabNs = function(key) {
     return key.split('_')[0];
 };
-module.exports.encode = function(space, ver, key) {
+module.exports.enc = function(space, ver, key) {
     return space + ver + key;
 };

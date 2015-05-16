@@ -1,5 +1,5 @@
 var version = require('./version');
-var keygen = require('./keygen');
+var keygen  = require('./keygen');
 var tryItem = require('./tryItem');
 
 var generateVersionMap = function(storage, namespace) {

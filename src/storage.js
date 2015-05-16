@@ -56,12 +56,12 @@ module.exports = function storge(storage, namespace, semver) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryItem.get(storage, gen.ns(arr[idx]), api.err);
+                arr[idx] = tryItem.get(storage, gen.enc(arr[idx]), api.err);
             }
             return arr;
         }
 
-        var genkey = gen.ns(key);
+        var genkey = gen.enc(key);
         if (expire.expired(genkey)) {
             removeItem(key);
             return undefined;
@@ -87,7 +87,7 @@ module.exports = function storge(storage, namespace, semver) {
             return api;
         }
 
-        var genkey = gen.ns(key);
+        var genkey = gen.enc(key);
 
         // Expiration
         if (opts) {
@@ -112,12 +112,12 @@ module.exports = function storge(storage, namespace, semver) {
             var arr = key.slice(),
                 idx = arr.length;
             while (idx--) {
-                arr[idx] = tryItem.remove(gen.ns(arr[idx]));
+                arr[idx] = tryItem.remove(gen.enc(arr[idx]));
             }
             return arr;
         }
 
-        return tryItem.remove(storage, gen.ns(key), api.err);
+        return tryItem.remove(storage, gen.enc(key), api.err);
     };
 
     return extend(api, {
