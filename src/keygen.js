@@ -26,8 +26,14 @@ var createSemver = function(name, semver) {
 
 var constant = function(key) { return key; };
 
-var grabVersion = function(key) {
-    return key.split('_')[1];
+var isNotEncoded = function(key) {
+    var keys = key.split('_');
+    // doesn't have enough keys to be encoded
+    if (keys.length < 3) { return true; }
+
+    var ver = keys[1];
+    // not a semantic version = not encoded
+    return !version.valid(ver);
 };
 
 module.exports = function(name, semver) {
@@ -48,16 +54,6 @@ module.exports = function(name, semver) {
         return rMatches.test(key);
     };
 
-    var isNotEncoded = function(key) {
-        var keys = key.split('_');
-        // doesn't have enough keys to be encoded
-        if (keys.length < 3) { return true; }
-
-        var ver = keys[1];
-        // not a semantic version = not encoded
-        return !version.valid(ver);
-    };
-
     return {
         active:    active,
         space:     space,
@@ -70,7 +66,9 @@ module.exports = function(name, semver) {
     };
 };
 
-module.exports.grabVersion = grabVersion;
+module.exports.grabVersion = function(key) {
+    return key.split('_')[1];
+};
 module.exports.grabNs = function(key) {
     return key.split('_')[0];
 };
