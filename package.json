@@ -3,7 +3,9 @@
   "version": "1.0.5",
   "description": "local and session storage wrapper",
   "main": "./src/index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "node ./test/index.js | tap-dot"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/JosephClay/storge-js.git"
@@ -22,6 +24,8 @@
     "gulp-header": "^1.2.2",
     "gulp-uglify": "^1.2.0",
     "moment": "^2.10.2",
+    "tap-dot": "^1.0.0",
+    "tape": "^4.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }
