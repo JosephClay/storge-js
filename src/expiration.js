@@ -16,7 +16,7 @@ module.exports = function(storage) {
 
     return {
         expired: function(key) {
-            var hasExpired = key in expirations && expirations[key] >= Date.now();
+            var hasExpired = key in expirations && expirations[key] <= Date.now();
             if (!hasExpired) { return hasExpired; }
 
             delete expirations[key];
