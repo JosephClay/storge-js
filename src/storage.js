@@ -1,3 +1,4 @@
+var storgeRef;
 var extend     = require('./extend');
 var expiration = require('./expiration');
 var keygen     = require('./keygen');
@@ -9,13 +10,13 @@ var migrate    = require('./migrate');
  * @param {String} namespace
  * @param {String} semver
  */
-var storge = module.exports = function(storage, namespace, semver) {
+storgeRef = module.exports = function storge(storage, namespace, semver) {
     var expire = expiration(storage);
     var gen = keygen(namespace, semver);
     var migration = migrate(storage, gen.space, gen.ver);
 
     var api = function(name, semver) {
-        return storge(storage, name, semver);
+        return storgeRef(storage, name, semver);
     };
 
     /**
