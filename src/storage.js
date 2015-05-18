@@ -5,6 +5,10 @@ var keygen     = require('./keygen');
 var tryItem    = require('./tryItem');
 var migrate    = require('./migrate');
 
+var factory = function(storage, name, semver) {
+    return storgeRef(storage, name, semver);
+};
+
 /**
  * @param {Object} localStorage, sessionStorage
  * @param {String} namespace
@@ -16,7 +20,7 @@ storgeRef = module.exports = function storge(storage, namespace, semver) {
     var migration = migrate(storage, gen.space, gen.ver);
 
     var api = function(name, semver) {
-        return storgeRef(storage, name, semver);
+        return factory(storage, name, semver);
     };
 
     /**
